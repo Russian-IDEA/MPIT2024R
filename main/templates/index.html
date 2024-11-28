@@ -15,22 +15,33 @@
 <body>
     <div id="root"></div>
 </body>
+<style>
+    .grid {
+        grid-template-columns: repeat({{ columns|length }}, fit-content(400px));
+    }
+</style>
 <script type="text/babel">
     const { useState } = React;
+
+    const DialogState = {
+        NO_DIALOG: 1,
+        ERROR_DIALOG: 2,
+        CORRECT_DIALOG: 3
+    };
 
     const DialogCorrect = ({setDialogState}) => {
         return (
             <div className="dialog-container">
                 <div className="dialog">
                     <div className="dialog-text-container">
-                        <textarea className="jura-font" name="" placeholder="Введите правки"></textarea>
+                        <textarea className="main-font" name="" placeholder="Введите правки"></textarea>
                     </div>
                     <div className="dialog-buttons-container">
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => setDialogState(0)} className="btn green-button jura-font">Исправить</button>
+                            <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn green-button main-font">Исправить</button>
                         </div>
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => setDialogState(1)} className="btn red-button jura-font">Вернуться назад</button>
+                            <button onClick={_ => setDialogState(DialogState.ERROR_DIALOG)} className="btn red-button main-font">Вернуться назад</button>
                         </div>
                     </div>
                 </div>
@@ -50,11 +61,11 @@
                     </div>
                     <div className="dialog-buttons-container">
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => setDialogState(0)} className="btn green-button jura-font">Принять</button>
-                            <button onClick={_ => setDialogState(0)} className="btn red-button jura-font no-margin-left">Пропустить</button>
+                            <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn green-button main-font">Принять</button>
+                            <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn red-button main-font no-margin-left">Пропустить</button>
                         </div>
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => setDialogState(2)} className="btn white-button jura-font">Исправить вручную</button>
+                            <button onClick={_ => setDialogState(DialogState.CORRECT_DIALOG)} className="btn white-button main-font">Исправить вручную</button>
                         </div>
                     </div>
                 </div>
@@ -64,36 +75,36 @@
 
     const Table = ({onClick}) => {
         return (
-            <table>
-            <tbody>
-                <tr>
-                    {% for column in columns %}
-                        <th>{{ column }}</th>
-                    {% endfor %}
-                </tr>
-                {% for row in table %}
-                    <tr>
-                    {% for el in row %}
-                        <td onClick={onClick}>
-                            {{ el }}
-                        </td>
-                    {% endfor %}
-                    </tr>
+            <div className="grid">
+                {% for column in columns %}
+                    <div className="grid-el-oval">{{ column }}</div>
                 {% endfor %}
-            </tbody>
-            </table>
+                {% for row in table %}
+                    {% for el in row %}
+                        {% if forloop.counter == 1 %}
+                            <div className="grid-el-oval" onClick={onClick}>{{ el }}</div>
+                        {% elif forloop.counter == 2 %}
+                            <div className="grid-el-start-row" onClick={onClick}>{{ el }}</div>
+                        {% elif forloop.counter == columns|length %}
+                            <div className="grid-el-end-row" onClick={onClick}>{{ el }}</div>
+                        {% else %}
+                            <div className="grid-el-rect" onClick={onClick}>{{ el }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
         );
     }
 
     const App = () => {
-        const [dialogState, setDialogState] = useState(0);
+        const [dialogState, setDialogState] = useState(DialogState.NO_DIALOG);
         return (
-            <div className={dialogState > 0 ? "darkened" : ''}>
-                <div onClick={_ => dialogState > 0 ? setDialogState(0) : null}>
-                    <Table onClick={_ => setDialogState(1)}/>
+            <div className={dialogState !== DialogState.NO_DIALOG ? "darkened" : ''}>
+                <div onClick={_ => dialogState !== DialogState.NO_DIALOG ? setDialogState(DialogState.NO_DIALOG) : null}>
+                    <Table onClick={_ => setDialogState(DialogState.ERROR_DIALOG)}/>
                 </div>
-                {dialogState === 1 ? <DialogError setDialogState={setDialogState}/> : ''}
-                {dialogState === 2 ? <DialogCorrect setDialogState={setDialogState}/> : ''}
+                {dialogState === DialogState.ERROR_DIALOG ? <DialogError setDialogState={setDialogState}/> : ''}
+                {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect setDialogState={setDialogState}/> : ''}
             </div>
         );
     }
