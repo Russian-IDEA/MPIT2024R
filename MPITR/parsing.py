@@ -38,16 +38,23 @@ def parse_xml(root, offer_attribs: list[str], tags: list[str], params_names: lis
         offer_list = list()
 
         for attrib in offer_attribs:
-            offer_list.append(offer.attrib[attrib])
+            attrib_value = offer.attrib.get(attrib)
+            offer_list.append(attrib_value)
 
         for tag in tags:
-            offer_list.append(offer.find(tag).text)
+            tag_element = offer.find(tag)
+            if tag_element is None:
+                offer_list.append(None)
+                continue
+
+            offer_list.append(tag_element.text)
 
         param_dict = dict()
         for param in offer.findall("param"):
             param_dict[param.attrib["name"]] = param.text
         for param_name in params_names:
-            offer_list.append(param_dict[param_name])
+            value = param_dict.get(param_name)
+            offer_list.append(value)
 
         offers.append(offer_list)
     return offers
