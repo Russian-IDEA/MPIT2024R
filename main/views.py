@@ -1,5 +1,6 @@
-from MPITR.parsing import parse_file
+from main.parsing import parse_file
 from django.shortcuts import render
+
 
 def home(request):
     table = parse_file('feeds/yandex_feed.xml')
