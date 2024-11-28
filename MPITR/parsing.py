@@ -6,9 +6,9 @@ parser = etree.XMLParser(encoding='utf-8',
 
 
 def parse_tags(root) -> list[str]:
-    """Парсит все не param теги. Используем через root.find('.//offer')."""
     tags = list()
-    added = set('param')
+    added = set()
+    added.add('param')
     for element in root:
         if element.tag not in added:
             tags.append(element.tag)
