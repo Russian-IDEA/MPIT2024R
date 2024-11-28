@@ -5,44 +5,42 @@ parser = etree.XMLParser(encoding='utf-8',
                          recover=True)
 
 
-def parse_tags(root) -> list[str]:
-    tags = list()
-    added = set()
-    added.add('param')
-    for element in root:
-        if element.tag not in added:
-            tags.append(element.tag)
-            added.add(element.tag)
+def parse_offer_attribs_tags_names(root):
+    attribs = []
+    for attrib in root.findall(".//attribute"):
+        name = attrib.text
+        elem_type = attrib.attrib["type"]
+        compulsory = bool(attrib.attrib["compulsory"])
+        attribs.append({"name": name, "type": elem_type, "compulsory": compulsory})
 
-    return tags
+    tags = []
+    for tag in root.findall(".//tag"):
+        name = tag.text
+        elem_type = tag.attrib["type"]
+        compulsory = bool(tag.attrib["compulsory"])
+        tags.append({"name": name, "type": elem_type, "compulsory": compulsory})
 
+    params = []
+    for param in root.findall(".//param"):
+        name = param.text
+        elem_type = param.attrib["type"]
+        compulsory = bool(param.attrib["compulsory"])
+        params.append({"name": name, "type": elem_type, "compulsory": compulsory})
 
-def parse_param_names(root) -> list[str]:
-    names = list()
-    for param in root.findall("param"):
-        names.append(param.attrib["name"])
-    return names
-
-
-def parse_offer_attrib(root) -> list[str]:
-    names = list()
-    for attrib in root.attrib:
-        names.append(attrib)
-
-    return names
+    return {"attribs": attribs, "tags": tags, "params": params}
 
 
-def parse_xml(root, offer_attribs: list[str], tags: list[str], params_names: list[str]) -> list:
+def parse_xml(root, offer_attribs, tags, params) -> list:
     offers = list()
     for offer in root.findall(".//offer"):
         offer_list = list()
 
         for attrib in offer_attribs:
-            attrib_value = offer.attrib.get(attrib)
+            attrib_value = offer.attrib.get(attrib["name"])
             offer_list.append(attrib_value)
 
         for tag in tags:
-            tag_element = offer.find(tag)
+            tag_element = offer.find(tag["name"])
             if tag_element is None:
                 offer_list.append(None)
                 continue
@@ -52,22 +50,32 @@ def parse_xml(root, offer_attribs: list[str], tags: list[str], params_names: lis
         param_dict = dict()
         for param in offer.findall("param"):
             param_dict[param.attrib["name"]] = param.text
-        for param_name in params_names:
-            value = param_dict.get(param_name)
+        for param in params:
+            value = param_dict.get(param["name"])
             offer_list.append(value)
 
         offers.append(offer_list)
     return offers
 
 
-def parse_file(file_name: str = "../feeds/yandex_feed.xml"):
+def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: str = "../feeds/template.xml"):
+    template = lxml.etree.parse(template_file_name).getroot()
+    parsed_template = parse_offer_attribs_tags_names(template)
+    offer_attribs = parsed_template["attribs"]
+    tags = parsed_template["tags"]
+    params = parsed_template["params"]
+
     tree = lxml.etree.parse(file_name, parser)
     root = tree.getroot()
+    offers = parse_xml(root, offer_attribs, tags, params)
 
-    offer_attribs = parse_offer_attrib(root.find('.//offer'))
-    tags = parse_tags(root.find('.//offer'))
-    params_names = parse_param_names(root.find('.//offer'))
+    # generate columns
+    columns = []
+    for attrib in offer_attribs:
+        columns.append(attrib["name"])
+    for tag in tags:
+        columns.append(tag["name"])
+    for param in params:
+        columns.append(param["name"])
 
-    offers = parse_xml(root, offer_attribs, tags, params_names)
-
-    return offer_attribs + tags + params_names, offers
+    return columns, offers

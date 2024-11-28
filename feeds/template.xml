@@ -1,0 +1,20 @@
+<offer>
+    <attribute type="int" compulsory="true">id</attribute>
+    <attribute type="bool" compulsory="true">available</attribute>
+    <attribute type="bool" compulsory="true">buba</attribute>
+
+    <tag type="float" compulsory="true">price</tag>
+    <tag type="str" compulsory="true">currencyId</tag>
+    <tag type="int" compulsory="true">categoryId</tag>
+    <tag type="str" compulsory="true">picture</tag>
+    <tag type="str" compulsory="true">name</tag>
+    <tag type="str" compulsory="true">vendor</tag>
+    <tag type="str" compulsory="true">description</tag>
+    <tag type="int" compulsory="true">barcode</tag>
+
+    <param type="int" compulsory="true">Артикул</param>
+    <param type="int" compulsory="true">Рейтинг</param>
+    <param type="int" compulsory="true">Количество отзывов</param>
+    <param type="int" compulsory="true">Скидка</param>
+    <param type="int" compulsory="true">Новинка</param>
+</offer>
