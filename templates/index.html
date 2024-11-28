@@ -6,8 +6,21 @@
 </head>
 <body>
     <h1>Hello world</h1>
-    {% for row in table %}
-        <p>{{ row }}</p>
-    {% endfor %}
+    <table>
+        <tr>
+            <th>№</th>
+            {% for column in columns %}
+                <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        {% for k, v in table.items %}
+            <tr>
+            <td>{{ k }}</td>
+            {% for content in v.values %}
+                <td>{{ content }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
