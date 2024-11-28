@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedant</title>
+</head>
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Jura:wght@300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'main.css' %}">
+<body>
+    <div id="root"></div>
+</body>
+<script type="text/babel">
+    const { useState } = React;
+
+    const DialogCorrect = ({setDialogState}) => {
+        return (
+            <div className="dialog-container">
+                <div className="dialog">
+                    <div className="dialog-text-container">
+                        <textarea className="jura-font" name="" placeholder="Введите правки"></textarea>
+                    </div>
+                    <div className="dialog-buttons-container">
+                        <div className="dialog-buttons-row">
+                            <button onClick={_ => setDialogState(0)} className="btn green-button jura-font">Исправить</button>
+                        </div>
+                        <div className="dialog-buttons-row">
+                            <button onClick={_ => setDialogState(1)} className="btn red-button jura-font">Вернуться назад</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const DialogError = ({setDialogState}) => {
+        return (
+            <div className="dialog-container">
+                <div className="dialog">
+                    <div className="dialog-text-container">
+                        <p className="error-message">Ошибка</p>
+                        <p className="error-text">Недопустимое значение скидки: 110%</p>
+                        <p className="pt-30 error-message">Исправленный вариант</p>
+                        <p className="error-text">ХАХАХАХАХАХАХАХАХАХХАХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХ</p>
+                    </div>
+                    <div className="dialog-buttons-container">
+                        <div className="dialog-buttons-row">
+                            <button onClick={_ => setDialogState(0)} className="btn green-button jura-font">Принять</button>
+                            <button onClick={_ => setDialogState(0)} className="btn red-button jura-font no-margin-left">Пропустить</button>
+                        </div>
+                        <div className="dialog-buttons-row">
+                            <button onClick={_ => setDialogState(2)} className="btn white-button jura-font">Исправить вручную</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const Table = ({onClick}) => {
+        return (
+            <table>
+            <tbody>
+                <tr>
+                    {% for column in columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in table %}
+                    <tr>
+                    {% for el in row %}
+                        <td onClick={onClick}>
+                            {{ el }}
+                        </td>
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        );
+    }
+
+    const App = () => {
+        const [dialogState, setDialogState] = useState(0);
+        return (
+            <div className={dialogState > 0 ? "darkened" : ''}>
+                <div onClick={_ => dialogState > 0 ? setDialogState(0) : null}>
+                    <Table onClick={_ => setDialogState(1)}/>
+                </div>
+                {dialogState === 1 ? <DialogError setDialogState={setDialogState}/> : ''}
+                {dialogState === 2 ? <DialogCorrect setDialogState={setDialogState}/> : ''}
+            </div>
+        );
+    }
+
+    ReactDOM.render(
+      <App/>,
+      document.getElementById('root')
+    );
+</script>
+</html>

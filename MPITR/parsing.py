@@ -58,7 +58,7 @@ def parse_xml(root, offer_attribs, tags, params) -> list:
     return offers
 
 
-def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: str = "../feeds/template.xml"):
+def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
     template = lxml.etree.parse(template_file_name).getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
     offer_attribs = parsed_template["attribs"]

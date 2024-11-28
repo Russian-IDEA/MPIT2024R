@@ -2,7 +2,6 @@ from MPITR.parsing import parse_file
 from django.shortcuts import render
 
 def home(request):
-    dictionary = parse_file('feeds/yandex_feed.xml')
-    columns = list(dictionary[list(dictionary.keys())[0]].keys())
+    table = parse_file('feeds/yandex_feed.xml')
     return render(request, 'index.html',
-                  {'columns': columns, 'table': dictionary})
+                  {'columns': table[0], 'table': table[1][:10]})
