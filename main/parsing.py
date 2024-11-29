@@ -53,13 +53,12 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
     if value is None:
         offer_list.append(None)
         if element_type["compulsory"]:
-            report.append({"index": i, "column": element_type["name"], "type": "technical",
-                           "reason": "compulsory element required"})
+            report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element required", "advice": ""})
         return
 
     if value == "" and element_type["compulsory"]:
         report.append(
-            {"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element is empty"})
+            {"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element is empty", "advice": ""})
         return
 
     if get_type(element_type) == bool:
@@ -93,7 +92,7 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         value = get_type(element_type)(value)
     except (ValueError, TypeError):
         value = None
-        report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid type"})
+        report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid type", "advice": ""})
 
     offer_list.append(value)
 
@@ -103,7 +102,7 @@ def insert_element_by_type(i: int, offer_list: list, report: list, element_type:
         offer_list.append(None)
         if element_type["compulsory"]:
             report.append({"index": i, "column": element_type["name"], "type": "technical",
-                           "reason": "compulsory element required"})
+                           "reason": "compulsory element required", "advice": ""})
         return
 
     value = element.text
@@ -145,7 +144,7 @@ def parse_xml(root, offer_attribs, tags, params) -> dict:
 
         offer_hash = hash_offer_without_id(offer_list)
         if offer_hash in hashs:
-            report.append({"index": i, "column": "hash", "type": "technical", "reason": "equal hash"})
+            report.append({"index": i, "column": "hash", "type": "technical", "reason": "equal hash", "advice": ""})
         else:
             hashs.add(offer_hash)
         offer_list.append(offer_hash)
@@ -187,7 +186,9 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 def test_db(request):
     result = parse_file()
+    print('saving xml')
     save_yandex_table(result["offers"])
+    print('xml saved')
 
     # print('checking price')
     # check_price(result)
@@ -258,23 +259,38 @@ def check_price(offers_data: dict):
 
 
 def saveCategoryMetric(arr):
+    Category.objects.all().delete()
+    print('creating categories')
+    categories = list()
     for i in arr:
         obj = Category(id_category=int(i[0]), name=str(i[1]), mat_exp=float(i[2]), sigm=float(i[3]), count=int(i[4]))
-        obj.save()
+        categories.append(obj)
+    print('adding')
+    Category.objects.bulk_create(categories, 1000)
 
 
 def save_report(report: list):
+    Report.objects.all().delete()
+    print('creating reports')
+    reports = list()
     for r in report:
-        db_report = Report(index=r["index"], column=r["column"], type=r["type"], reason=r["reason"])
-        db_report.save()
+        db_report = Report(index=r["index"], column=r["column"], type=r["type"], reason=r["reason"], advice=r["advice"])
+        reports.append(db_report)
+    print('adding')
+    Report.objects.bulk_create(reports, 1000)
+
 
 
 def save_yandex_table(table: list):
     YandexOffer.objects.all().delete()
+    print('creating offers')
+    offers = list()
     for offer in table:
         db_offer = YandexOffer(index=offer[0], available=offer[1], price=offer[2], currencyId=offer[3],
                                categoryId=offer[4], picture=offer[5], name=offer[6],
                                vendor=offer[7], description=offer[8], barcode=offer[9],
                                article=offer[10], rating=offer[11], review_amount=offer[12],
                                sale=offer[13], newby=offer[14])
-        db_offer.save()
+        offers.append(db_offer)
+    print('adding')
+    YandexOffer.objects.bulk_create(offers, 1000)

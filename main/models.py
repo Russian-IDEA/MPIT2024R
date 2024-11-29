@@ -17,6 +17,7 @@ class Report(models.Model):
    column = models.CharField(max_length=50)
    type = models.CharField(max_length=50)
    reason = models.CharField(max_length=50)
+   advice = models.CharField(max_length=200, default="")
 
    class Meta:
       db_table = "report"
