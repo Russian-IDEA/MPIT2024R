@@ -10,14 +10,14 @@ from .models import Report, YandexOffer
 
 def home(request):
     # filename = request.GET['filename']
-    # table = parse_and_save(f'feeds/yandex_feed.xml')
+    # table = parse_and_save(f'feeds/{filename}')
+    # table = parse_and_save('/Users/user/PycharmProjects/MPITR/feeds/yandex_feed.xml')
     # report = get_info_report(table)
     report = get_info_db()
     return render(request, 'index.html',
                   {
                       'columns': report[0],
-                      'table': report[1],
-                      'report': report[2]
+                      'table': report[1]
                   })
 
 def upload(request):
@@ -28,28 +28,30 @@ def upload(request):
     return render(request, 'upload.html')
 
 
-def get_info_report(table):
-    res_reports = {}
-    all_element = table["offers"]
-    res_element = []
-    report_all = list(reversed(Report.objects.all().order_by("type")))
-    for i in report_all:
-        if i.index in res_reports.keys():
-            res_reports[i.index][i.column] = [i.type, i.reason]
-        else:
-            res_reports[i.index] = {i.column: [i.type, i.reason]}
-    for i in res_reports.keys():
-        res_element.append(all_element[i])
-    keys_rest_arr = list(res_reports.keys())[:10]
-    res_rest_elem = []
-    res_rest_rep = {}
-    for i in keys_rest_arr:
-        res_rest_elem.append(all_element[i])
-        res_rest_rep[i] = res_reports[i]
-    return [table["columns"], res_rest_elem, res_rest_rep]
+# def get_info_report(table):
+#     res_reports = {}
+#     all_element = table["offers"]
+#     res_element = []
+#     report_all = list(reversed(Report.objects.all().order_by("type")))
+#     for i in report_all:
+#         if i.index in res_reports.keys():
+#             res_reports[i.index][i.column] = [i.type, i.reason]
+#         else:
+#             res_reports[i.index] = {i.column: [i.type, i.reason]}
+#     for i in res_reports.keys():
+#         res_element.append(all_element[i])
+#     keys_rest_arr = list(res_reports.keys())[:10]
+#     res_rest_elem = []
+#     res_rest_rep = {}
+#     for i in keys_rest_arr:
+#         res_rest_elem.append(all_element[i])
+#         res_rest_rep[i] = res_reports[i]
+#     return [table["columns"], res_rest_elem, res_rest_rep]
 
 
-def get_info_db(template_file_name='feeds/template.xml'):
+def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/template.xml"):
+    dict_const = {"index": 0, "available": 1, "price": 2, "currencyId": 3, "categoryId": 4, "picture": 5, "name": 6, "vendor": 7,
+           "description": 8, "barcode": 9, "article": 10, "rating": 11, "review_amount": 12, "sale": 13, "newby": 14}
     res_reports = {}
     report_all = list(reversed(Report.objects.all().order_by("type")))
     for i in report_all:
@@ -62,8 +64,14 @@ def get_info_db(template_file_name='feeds/template.xml'):
     res_rest_rep = {}
     for i in keys_rest_arr:
         y = YandexOffer.objects.get(pk=i)
-        res_rest_elem.append([y.index, y.available, y.price, y.currencyId, y.categoryId, y.picture, y.name, y.vendor,
-                              y.description, y.barcode, y.article, y.rating, y.review_amount, y.sale, y.newby])
+        dt = res_reports[i]
+        res_elem = [{"value": y.index}, {"value": y.available}, {"value": y.price}, {"value": y.currencyId}, {"value": y.categoryId}, {"value": y.picture}, {"value": y.name}, {"value": y.vendor},
+                              {"value": y.description}, {"value": y.barcode}, {"value": y.article}, {"value": y.rating}, {"value": y.review_amount}, {"value": y.sale}, {"value": y.newby}]
+        for j in dt.keys():
+            k = dict_const[j]
+            res_elem[k]["type"] = res_reports[i][j][0]
+            res_elem[k]["reason"] = res_reports[i][j][1]
+        res_rest_elem.append(res_elem)
         res_rest_rep[i] = res_reports[i]
 
     template = lxml.etree.parse(template_file_name).getroot()
@@ -80,4 +88,4 @@ def get_info_db(template_file_name='feeds/template.xml'):
         columns.append(tag["localizedname"])
     for param in params:
         columns.append(param["localizedname"])
-    return [columns, res_rest_elem, res_rest_rep]
+    return [columns, res_rest_elem]
