@@ -31,36 +31,45 @@
         CORRECT_DIALOG: 3
     };
     
-    const onSuccess = (index, category, newValue, setDialogState) => {
-        fetch('http://localhost:8000/url', {
+    const onSuccess = (index, category, newValue, setDialogState, setError) => {
+        fetch('http://localhost:8000/update-value/', {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', 
+              'X-CSRFToken': csrf_token.props.value
           },
           body: JSON.stringify({
-            id: index,
-            category: category,
+            id: Number(index),
+            column: category,
             new_value: newValue
           })
+        }).then(response => {
+            const data = response.body;
+            if (data.valid) {
+                const element = document.getElementById(index+'-'+category);
+                element.innerText = newValue;
+                element.classList += ' corrected-error';
+                setDialogState(DialogState.NO_DIALOG);
+            } else {
+                setError(data.report.reason);
+            }
         });
-        const element = document.getElementById(index+'-'+category);
-        element.innerText = newValue;
-        element.classList += ' corrected-error';
-        setDialogState(DialogState.NO_DIALOG);
     };
 
     const DialogCorrect = ({setDialogState, index, category, position}) => {
         const [inputValue, setInputValue] = useState(document.getElementById(index+'-'+category).innerText);
+        const [error, setError] = useState('');
         return (
             <div className="dialog-container">
                 <div style={position} className="dialog">
                     <div className="dialog-text-container">
                         <textarea className="main-font" name="" placeholder="Введите правки" value={inputValue} onChange={e => setInputValue(e.target.value)}></textarea>
                     </div>
+                    <span>{ error }</span>
                     <div className="dialog-buttons-container">
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => onSuccess(index, category, inputValue, setDialogState)} className="btn green-button main-font">Исправить</button>
+                            <button onClick={_ => onSuccess(index, category, inputValue, setDialogState, setError)} className="btn green-button main-font">Исправить</button>
                         </div>
                         <div className="dialog-buttons-row">
                             <button onClick={_ => setDialogState(DialogState.ERROR_DIALOG)} className="btn red-button main-font">Вернуться назад</button>
@@ -75,6 +84,7 @@
         const toCorrectDialog = () => {
             setDialogState(DialogState.CORRECT_DIALOG);
         };
+        const [error, setError] = useState('');
         return (
             <div className="dialog-container">
                 <div style={position} className="dialog">
@@ -88,10 +98,11 @@
                         </div> : null
                         }
                     </div>
+                    <span>{ error }</span>
                     <div className="dialog-buttons-container">
                         { correctMessage !== '' ? 
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => onSuccess(index, category, correctMessage, setDialogState)} className="btn green-button main-font">Принять</button>
+                            <button onClick={_ => onSuccess(index, category, correctMessage, setDialogState, setError)} className="btn green-button main-font">Принять</button>
                             <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn red-button main-font no-margin-left">Пропустить</button>
                         </div> : null
                         }

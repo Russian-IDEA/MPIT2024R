@@ -35,9 +35,10 @@ def upload(request):
 
 def update_value_bd(request):
     if request.method == 'POST':
-        id = int(request.POST['id'])
-        column = request.POST['column']
-        new_value = request.POST['new_value']
+        body = json.loads(request.body.decode('utf-8'))
+        id = int(body['id'])
+        column = body['column']
+        new_value = body['new_value']
 
         result = validate_change({"id": id, "column": column, "value": new_value})
         return JsonResponse(result)

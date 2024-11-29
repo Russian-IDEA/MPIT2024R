@@ -273,6 +273,10 @@ input {
     background-color: rgba(236, 156, 0, 0.8);
 }
 
+span {
+    color: red;
+}
+
 .corrected-error {
     cursor: auto !important;
     transition: none !important;
