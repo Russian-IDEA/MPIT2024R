@@ -41,7 +41,7 @@
           },
           body: JSON.stringify({
             id: Number(index),
-            column: category,
+            column: category - 1,
             new_value: newValue
           })
         }).then(response => {
