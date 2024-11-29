@@ -176,3 +176,27 @@ textarea {
     border-bottom-right-radius: 20px;
 }
 
+header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px;
+}
+
+.logo-text {
+    color: rgba(100, 52, 19, 1);
+    font-size: 36px;
+}
+
+.content {
+    margin-top: 50px;
+}
+
+.help {
+    font-size: 32px;
+}
+

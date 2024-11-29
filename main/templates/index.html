@@ -30,7 +30,7 @@
     };
 
     const DialogCorrect = ({setDialogState, index, category}) => {
-        const [inputValue, setInputValue] = useState("");
+        const [inputValue, setInputValue] = useState(document.getElementById(index+'-'+category).innerText);
         const onSuccess = () => {
             document.getElementById(index+'-'+category).innerText = inputValue;
             setDialogState(DialogState.NO_DIALOG);
@@ -54,19 +54,23 @@
         );
     }
 
-    const DialogError = ({setDialogState, correctMessage}) => {
+    const DialogError = ({setDialogState, correctMessage, errorMessage, index, category}) => {
+        const onSuccess = () => {
+            document.getElementById(index+'-'+category).innerText = correctMessage;
+            setDialogState(DialogState.NO_DIALOG);
+        };
         return (
             <div className="dialog-container">
                 <div className="dialog">
                     <div className="dialog-text-container">
                         <p className="error-message">Ошибка</p>
-                        <p className="error-text">{ correctMessage }</p>
+                        <p className="error-text">{ errorMessage }</p>
                         <p className="pt-30 error-message">Исправленный вариант</p>
-                        <p className="error-text">ХАХАХАХАХАХАХАХАХАХХАХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХАХАХАХХАХАХАХ</p>
+                        <p className="error-text">{ correctMessage }</p>
                     </div>
                     <div className="dialog-buttons-container">
                         <div className="dialog-buttons-row">
-                            <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn green-button main-font">Принять</button>
+                            <button onClick={onSuccess} className="btn green-button main-font">Принять</button>
                             <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn red-button main-font no-margin-left">Пропустить</button>
                         </div>
                         <div className="dialog-buttons-row">
@@ -80,7 +84,7 @@
     
     const RowElement = ({className, text, onClick, index, category}) => {
         const onElemClick = () => {
-            onClick("Оффер для " + text, index, category);
+            onClick("Оффер для " + text, 'Ну всё плохо', index, category);
         }
         return (
             <div id={index+'-'+category} className={className} onClick={onElemClick}>{ text }</div>
@@ -95,15 +99,17 @@
                 {% endfor %}
                 {% for row in table %}
                     {% for el in row %}
+                        <RowElement
                         {% if forloop.counter == 1 %}
-                            <RowElement className="grid-el-oval" text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
+                            className="grid-el-oval"
                         {% elif forloop.counter == 2 %}
-                            <RowElement className="grid-el-start-row" text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
+                            className="grid-el-start-row"
                         {% elif forloop.counter == columns|length %}
-                            <RowElement className="grid-el-end-row" text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
+                            className="grid-el-end-row"
                         {% else %}
-                            <RowElement className="grid-el-rect" text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
+                            className="grid-el-rect"
                         {% endif %}
+                        text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
                     {% endfor %}
                 {% endfor %}
             </div>
@@ -113,20 +119,27 @@
     const App = () => {
         const [dialogState, setDialogState] = useState(DialogState.NO_DIALOG);
         const [correctMessage, setCorrectMessage] = useState('');
+        const [errorMessage, setErrorMessage] = useState('');
         const [index, setIndex] = useState(-1);
         const [category, setCategory] = useState(-1);
-        const onElemClick = (offer, index, category) => {
+        const onElemClick = (offer, error, index, category) => {
             setDialogState(DialogState.ERROR_DIALOG);
             setCorrectMessage(offer);
+            setErrorMessage(error);
             setIndex(index);
             setCategory(category);
         };
         return (
             <div className={dialogState !== DialogState.NO_DIALOG ? "darkened" : ''}>
-                <div onClick={_ => dialogState !== DialogState.NO_DIALOG ? setDialogState(DialogState.NO_DIALOG) : null}>
+                <header>
+                    <div><img src="{% static 'logo.png' %}" alt="Logo"/></div>
+                    <div className="logo-text">PEDANT</div>
+                    <div className="help">помощь</div>
+                </header>
+                <div className="content" onClick={_ => dialogState !== DialogState.NO_DIALOG ? setDialogState(DialogState.NO_DIALOG) : null}>
                     <Table onClick={onElemClick}/>
                 </div>
-                {dialogState === DialogState.ERROR_DIALOG ? <DialogError setDialogState={setDialogState} correctMessage={correctMessage}/> : ''}
+                {dialogState === DialogState.ERROR_DIALOG ? <DialogError setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}
                 {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect setDialogState={setDialogState} index={index} category={category}/> : ''}
             </div>
         );
