@@ -158,9 +158,7 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
     root = tree.getroot()
     print('start parsing')
     offers_data = parse_xml(root, offer_attribs, tags, params)
-    print('parsed, checking price')
-    check_price(offers_data)
-    print('price checked, saved')
+    print('parsed')
 
     # generate columns
     columns = []
@@ -172,14 +170,16 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
         columns.append(param["name"])
     columns.append("hash")
 
-    print('saving report')
-    save_report(offers_data["report"])
-    print('report saved')
-
     return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"]}
 
 def test_db(request):
-    parse_file()
+    result = parse_file()
+
+    print('checking price')
+    check_price(result)
+
+    print('price checked, saving reports')
+    save_report(result["report"])
     return render(request, 'index.html',
                   {'columns': [], 'table': []})
 
