@@ -239,8 +239,8 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
     return result
 
 
-def test_db(request):
-    result = parse_file("feeds/yandex_feed.xml")
+def test_db(filename):
+    result = parse_file(filename)
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -251,7 +251,6 @@ def test_db(request):
 
     print('price checked, saving reports')
     save_report(result["report"])
-    return redirect('/')
 
 
 def check_price(offers_data: dict):

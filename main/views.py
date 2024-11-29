@@ -4,7 +4,7 @@ import urllib.request
 
 import lxml
 from lxml import etree
-from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change
+from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change, test_db
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -33,6 +33,7 @@ def upload(request):
         filename = f'feeds/file{files_number + 1}.xml'
         urllib.request.urlretrieve(path, filename)
         Current.objects.create(current=filename)
+        test_db(filename)
         return redirect('/')
     return render(request, 'upload.html')
 
