@@ -1,7 +1,7 @@
 import math
 import pymorphy3
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.db.models import sql
 from django.db import connection
 
@@ -10,8 +10,6 @@ import lxml
 from lxml import etree
 from cityhash import CityHash64
 import os
-
-from werkzeug.utils import redirect
 
 from .models import Category, Report, YandexOffer
 import requests
