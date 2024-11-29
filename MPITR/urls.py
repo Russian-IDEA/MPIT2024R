@@ -19,11 +19,11 @@ from django.urls import path
 from main.views import home
 from django.conf.urls.static import static
 from django.conf import settings
-from main.parsing import check_price
+from main.parsing import test_db
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home),
-    path("testDB/", check_price)
+    path("testDB/", test_db)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

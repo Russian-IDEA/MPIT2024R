@@ -12,7 +12,7 @@ class Category(models.Model):
       db_table = "CategoryMetric"
 
 
-class Reason(models.Model):
+class Report(models.Model):
    index = models.IntegerField(primary_key=True)
    column = models.CharField(max_length=50)
    type = models.CharField(max_length=50)
