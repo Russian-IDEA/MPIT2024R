@@ -210,7 +210,15 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
         columns.append(param["localizedname"])
     columns.append("hash")
 
-    return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"]}
+    props = []
+    for attrib in offer_attribs:
+        props.append(attrib)
+    for tag in tags:
+        props.append(tag)
+    for param in params:
+        props.append(param)
+
+    return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"], "props": props}
 
 
 def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
@@ -227,8 +235,8 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 
 def test_db(request):
-    delete_report({"index": 1, "column": 12})
     result = parse_file("feeds/yandex_feed.xml")
+    change_value(24903, 2, 154, result["props"])
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -336,6 +344,7 @@ def validate_change(change: dict):
     if type == bool:
         result = parse_bool(change["value"])
         if result is not None:
+            change_value(change["index"], change["column"], result, columns)
             return {"valid": True}
 
         report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid bool", "advice": ""}
@@ -355,7 +364,14 @@ def validate_change(change: dict):
         add_report(report)
         return {"valid": False, "report": report}
 
+    change_value(change["index"], change["column"], value, columns)
     return {"valid": True}
+
+
+def change_value(index: int, column: int, value, columns: list):
+    inst = YandexOffer.objects.get(index=index)
+    setattr(inst, columns[column]["name"], value)
+    inst.save()
 
 
 def delete_report(report: dict):
