@@ -1,9 +1,13 @@
 import math
 import pymorphy2
-import lxml
 from django.shortcuts import render
+
+import lxml
 from lxml import etree
+from cityhash import CityHash64
+
 from .models import Category
+
 
 parser = etree.XMLParser(encoding='utf-8',
                          recover=True)
@@ -34,32 +38,117 @@ def parse_offer_attribs_tags_names(root):
     return {"attribs": attribs, "tags": tags, "params": params}
 
 
-def parse_xml(root, offer_attribs, tags, params) -> list:
+def get_type(element: dict):
+    match element["type"]:
+        case "int":
+            return int
+        case "str":
+            return str
+        case "bool":
+            return bool
+        case "float":
+            return float
+
+
+def insert_value_by_type(i: int, offer_list: list, report: list, element_type: dict, value: str):
+    if value is None:
+        offer_list.append(None)
+        if element_type["compulsory"]:
+            report.append({"index": i, "column": element_type["name"], "type": "technical",
+                           "reason": "compulsory element required"})
+        return
+
+    if value == "" and element_type["compulsory"]:
+        report.append(
+            {"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element is empty"})
+        return
+
+    if get_type(element_type) == bool:
+        match value:
+            case 'Да':
+                offer_list.append(True)
+            case 'Нет':
+                offer_list.append(False)
+            case 'да':
+                offer_list.append(True)
+            case 'нет':
+                offer_list.append(False)
+            case 'True':
+                offer_list.append(True)
+            case 'False':
+                offer_list.append(False)
+            case 'true':
+                offer_list.append(True)
+            case 'false':
+                offer_list.append(False)
+            case _:
+                report.append(
+                    {"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid bool"})
+        return
+
+    try:
+        value = get_type(element_type)(value)
+    except (ValueError, TypeError):
+        value = None
+        report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid type"})
+
+    offer_list.append(value)
+
+
+def insert_element_by_type(i: int, offer_list: list, report: list, element_type: dict, element):
+    if element is None:
+        offer_list.append(None)
+        if element_type["compulsory"]:
+            report.append({"index": i, "column": element_type["name"], "type": "technical",
+                           "reason": "compulsory element required"})
+        return
+
+    value = element.text
+    insert_value_by_type(i, offer_list, report, element_type, value)
+
+
+def hash_offer_without_id(offer_list: list) -> int:
+    data = ""
+    for i in range(1, len(offer_list)):
+        value = offer_list[i]
+        if value is not None:
+            data += str(value)
+
+    return CityHash64(data)
+
+
+def parse_xml(root, offer_attribs, tags, params) -> dict:
+    report = list()
     offers = list()
-    for offer in root.findall(".//offer"):
+    hashs = set()
+
+    offer_elements = root.findall(".//offer")
+    for i in range(len(offer_elements)):
+        offer = offer_elements[i]
+
         offer_list = list()
 
         for attrib in offer_attribs:
-            attrib_value = offer.attrib.get(attrib["name"])
-            offer_list.append(attrib_value)
+            insert_value_by_type(i, offer_list, report, attrib, offer.attrib.get(attrib["name"]))
 
         for tag in tags:
-            tag_element = offer.find(tag["name"])
-            if tag_element is None:
-                offer_list.append(None)
-                continue
-
-            offer_list.append(tag_element.text)
+            insert_element_by_type(i, offer_list, report, tag, offer.find(tag["name"]))
 
         param_dict = dict()
         for param in offer.findall("param"):
             param_dict[param.attrib["name"]] = param.text
         for param in params:
-            value = param_dict.get(param["name"])
-            offer_list.append(value)
+            insert_value_by_type(i, offer_list, report, param, param_dict.get(param["name"]))
+
+        offer_hash = hash_offer_without_id(offer_list)
+        if offer_hash in hashs:
+            report.append({"index": i, "column": "hash", "type": "technical", "reason": "equal hash"})
+        else:
+            hashs.add(offer_hash)
+        offer_list.append(offer_hash)
 
         offers.append(offer_list)
-    return offers
+    return {"offers": offers, "report": report}
 
 
 def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
@@ -81,6 +170,7 @@ def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: 
         columns.append(tag["name"])
     for param in params:
         columns.append(param["name"])
+    columns.append("hash")
 
     return columns, offers
 
