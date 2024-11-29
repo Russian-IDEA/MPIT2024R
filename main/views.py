@@ -3,6 +3,12 @@ from django.shortcuts import render
 
 
 def home(request):
-    table = parse_file('feeds/yandex_feed.xml')
+    result = parse_file('feeds/yandex_feed.xml')
+    table = result['offers']
+    # print(result['report'])
     return render(request, 'index.html',
-                  {'columns': table[0], 'table': table[1][:10]})
+                  {
+                      'columns': result['columns'],
+                      'table': table[:10],
+
+                  })

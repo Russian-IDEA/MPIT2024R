@@ -10,3 +10,13 @@ class Category(models.Model):
 
    class Meta:
       db_table = "CategoryMetric"
+
+
+class Reason(models.Model):
+   index = models.IntegerField(primary_key=True)
+   column = models.CharField(max_length=50)
+   type = models.CharField(max_length=50)
+   reason = models.CharField(max_length=50)
+
+   class Meta:
+      db_table = "report"
