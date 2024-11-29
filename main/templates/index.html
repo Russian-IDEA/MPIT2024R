@@ -22,19 +22,22 @@
 </style>
 <script type="text/babel">
     const { useState, useEffect } = React;
-
+    
     const DialogState = {
         NO_DIALOG: 1,
         ERROR_DIALOG: 2,
         CORRECT_DIALOG: 3
     };
+    
+    const onSuccess = (index, category, newValue, setDialogState) => {
+        const element = document.getElementById(index+'-'+category);
+        element.innerText = newValue;
+        element.classList += ' corrected-error';
+        setDialogState(DialogState.NO_DIALOG);
+    };
 
     const DialogCorrect = ({setDialogState, index, category, position}) => {
         const [inputValue, setInputValue] = useState(document.getElementById(index+'-'+category).innerText);
-        const onSuccess = () => {
-            document.getElementById(index+'-'+category).innerText = inputValue;
-            setDialogState(DialogState.NO_DIALOG);
-        };
         return (
             <div className="dialog-container">
                 <div style={position} className="dialog">
@@ -43,7 +46,7 @@
                     </div>
                     <div className="dialog-buttons-container">
                         <div className="dialog-buttons-row">
-                            <button onClick={onSuccess} className="btn green-button main-font">Исправить</button>
+                            <button onClick={_ => onSuccess(index, category, inputValue, setDialogState)} className="btn green-button main-font">Исправить</button>
                         </div>
                         <div className="dialog-buttons-row">
                             <button onClick={_ => setDialogState(DialogState.ERROR_DIALOG)} className="btn red-button main-font">Вернуться назад</button>
@@ -55,10 +58,6 @@
     }
 
     const DialogError = ({setDialogState, correctMessage, errorMessage, index, category, position}) => {
-        const onSuccess = () => {
-            document.getElementById(index+'-'+category).innerText = correctMessage;
-            setDialogState(DialogState.NO_DIALOG);
-        };
         const toCorrectDialog = () => {
             setDialogState(DialogState.CORRECT_DIALOG);
         };
@@ -68,14 +67,20 @@
                     <div className="dialog-text-container">
                         <p className="error-message">Ошибка</p>
                         <p className="error-text">{ errorMessage }</p>
-                        <p className="pt-30 error-message">Исправленный вариант</p>
-                        <p className="error-text corrected">{ correctMessage }</p>
+                        { correctMessage !== '' ? 
+                        <div>
+                            <p className="pt-30 error-message">Предложение</p>
+                            <p className="error-text corrected">{ correctMessage }</p>
+                        </div> : null
+                        }
                     </div>
                     <div className="dialog-buttons-container">
+                        { correctMessage !== '' ? 
                         <div className="dialog-buttons-row">
-                            <button onClick={onSuccess} className="btn green-button main-font">Принять</button>
+                            <button onClick={_ => onSuccess(index, category, correctMessage, setDialogState)} className="btn green-button main-font">Принять</button>
                             <button onClick={_ => setDialogState(DialogState.NO_DIALOG)} className="btn red-button main-font no-margin-left">Пропустить</button>
-                        </div>
+                        </div> : null
+                        }
                         <div className="dialog-buttons-row">
                             <button onClick={toCorrectDialog} className="btn white-button main-font">Исправить вручную</button>
                         </div>
@@ -85,20 +90,16 @@
         );
     }
     
-    const RowElement = ({className, text, onClick, index, category, style}) => {
+    const RowElement = ({className, extraClasses, advice, errorMessage, text, onClick, index, category, style}) => {
         const onElemClick = () => {
-            onClick("Оффер для " + text, 'Ну всё плохо', index, category);
+            onClick(advice, errorMessage, index, category);
         }
         return (
-            <div style={style} id={index+'-'+category} className={className} onClick={onElemClick}>{ text }</div>
+            <div style={style} id={index+'-'+category} className={className + ' ' + extraClasses} onClick={onElemClick}>{ text }</div>
         );
     }
 
     const Table = ({onClick}) => {
-        const errorStyle = {
-            background: "rgba(208, 69, 51, 0.5)",
-            cursor: "pointer"
-        } 
         return (
             <div className="grid">
                 {% for column in columns %}
@@ -116,11 +117,17 @@
                         {% else %}
                             className="grid-el-rect"
                         {% endif %}
-                        {% if row.0 in report.keys and forloop.counter != 1 %}
+                        {% if forloop.counter != 1 and 'type' in el.keys %}
                             onClick={onClick}
-                            style={errorStyle}
+                            {% if el.type == 'technical' %}
+                                extraClasses="error-cell"
+                            {% else %}
+                                extraClasses="warning-cell"
+                            {% endif %}
                         {% endif %}
-                        text="{{ el.value }}"
+                        advice="{{ el.advice }}"
+                        errorMessage="{{ el.reason }}"
+                        text="{% if forloop.counter == 1 %}{{ el }}{% else %}{{ el.value }}{% endif %}"
                         index="{{ row.0 }}" category="{{ forloop.counter }}"/>
                     {% endfor %}
                 {% endfor %}
@@ -140,7 +147,7 @@
         const [index, setIndex] = useState(-1);
         const [category, setCategory] = useState(-1);
         const onElemClick = (offer, error, index, category) => {
-            if (DialogState.NO_DIALOG === dialogState) {
+            if (DialogState.NO_DIALOG === dialogState && !document.getElementById(index+'-'+category).classList.contains("corrected-error")) {
                 scrolledX = window.scrollX;
                 scrolledY = window.scrollY;
                 setDialogState(DialogState.ERROR_DIALOG);
@@ -202,6 +209,9 @@
                 </div>
                 {dialogState === DialogState.ERROR_DIALOG ? <DialogError position={ positionDialog } setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}
                 {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect position={ positionDialog } setDialogState={setDialogState} index={index} category={category}/> : ''}
+                <footer>
+                    <button className="btn green-button main-font">Далее</button>
+                </footer>
             </div>
         );
     }

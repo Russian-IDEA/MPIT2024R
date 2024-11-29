@@ -192,6 +192,24 @@ header {
     left: 0;
     padding: 10px 40px;
     background-color: white;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    width: 95%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 10px 40px;
+    background-color: white;
+    box-shadow: 0 -4px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+footer button {
+    width: 200px !important;
 }
 
 .logo-text {
@@ -201,6 +219,7 @@ header {
 
 .content {
     margin-top: 70px;
+    margin-bottom: 50px;
 }
 
 .help {
@@ -235,6 +254,27 @@ input {
 }
 
 .error-cell {
-    background-color: red;
-    opacity: .5;
+    background-color: rgba(208, 69, 51, 0.5);
+    cursor: pointer;
+    transition: .2s;
+}
+
+.error-cell:hover {
+    background-color: rgba(208, 69, 51, 0.8);
+}
+
+.warning-cell {
+    background-color: rgba(236, 156, 0, 0.5);
+    cursor: pointer;
+    transition: .2s;
+}
+
+.warning-cell:hover {
+    background-color: rgba(236, 156, 0, 0.8);
+}
+
+.corrected-error {
+    background-color: transparent !important;
+    cursor: auto !important;
+    transition: none !important;
 }
