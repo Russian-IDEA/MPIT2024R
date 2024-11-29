@@ -4,7 +4,7 @@ import urllib.request
 import lxml
 from lxml import etree
 from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Report, YandexOffer
 
 
@@ -25,6 +25,7 @@ def upload(request):
         path = request.POST['path']
         files_number = len([name for name in os.listdir('feeds/') if os.path.isfile(name)])
         urllib.request.urlretrieve(path, f'feeds/file{files_number + 1}.xml')
+        return redirect('/')
     return render(request, 'upload.html')
 
 

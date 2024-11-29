@@ -23,6 +23,8 @@
 <script type="text/babel">
     const { useState, useEffect } = React;
     
+    const csrf_token = {% csrf_token %}</input>
+    
     const DialogState = {
         NO_DIALOG: 1,
         ERROR_DIALOG: 2,
@@ -210,7 +212,9 @@
                 {dialogState === DialogState.ERROR_DIALOG ? <DialogError position={ positionDialog } setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}
                 {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect position={ positionDialog } setDialogState={setDialogState} index={index} category={category}/> : ''}
                 <footer>
-                    <button className="btn green-button main-font">Далее</button>
+                    <form method="post">{csrf_token}
+                        <button type="submit" className="btn green-button main-font">Далее</button>
+                    </form>
                 </footer>
             </div>
         );
