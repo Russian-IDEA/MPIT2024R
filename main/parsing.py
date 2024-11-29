@@ -160,7 +160,7 @@ def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: 
 
     tree = lxml.etree.parse(file_name, parser)
     root = tree.getroot()
-    offers = parse_xml(root, offer_attribs, tags, params)
+    offers_data = parse_xml(root, offer_attribs, tags, params)
 
     # generate columns
     columns = []
@@ -172,7 +172,7 @@ def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: 
         columns.append(param["name"])
     columns.append("hash")
 
-    return {"columns": columns, "offers": offers}
+    return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"]}
 
 
 def check_price(request):
