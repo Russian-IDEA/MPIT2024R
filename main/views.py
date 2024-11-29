@@ -28,6 +28,14 @@ def upload(request):
     return render(request, 'upload.html')
 
 
+def update_value_bd(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        category = request.POST['category']
+        new_value = request.POST['new_value']
+    # return
+
+
 # def get_info_report(table):
 #     res_reports = {}
 #     all_element = table["offers"]
@@ -65,7 +73,7 @@ def get_info_db(template_file_name="feeds/template.xml"):
     for i in keys_rest_arr:
         y = YandexOffer.objects.get(pk=i)
         dt = res_reports[i]
-        res_elem = [{"value": y.index}, {"value": y.available}, {"value": y.price}, {"value": y.currencyId}, {"value": y.categoryId}, {"value": y.picture}, {"value": y.name}, {"value": y.vendor},
+        res_elem = [y.index, {"value": y.available}, {"value": y.price}, {"value": y.currencyId}, {"value": y.categoryId}, {"value": y.picture}, {"value": y.name}, {"value": y.vendor},
                               {"value": y.description}, {"value": y.barcode}, {"value": y.article}, {"value": y.rating}, {"value": y.review_amount}, {"value": y.sale}, {"value": y.newby}]
         for j in dt.keys():
             k = dict_const[j]
