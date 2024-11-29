@@ -17,8 +17,7 @@ def home(request):
     return render(request, 'index.html',
                   {
                       'columns': report[0],
-                      'table': report[1],
-                      'report': report[2]
+                      'table': report[1]
                   })
 
 def upload(request):
@@ -29,25 +28,25 @@ def upload(request):
     return render(request, 'upload.html')
 
 
-def get_info_report(table):
-    res_reports = {}
-    all_element = table["offers"]
-    res_element = []
-    report_all = list(reversed(Report.objects.all().order_by("type")))
-    for i in report_all:
-        if i.index in res_reports.keys():
-            res_reports[i.index][i.column] = [i.type, i.reason]
-        else:
-            res_reports[i.index] = {i.column: [i.type, i.reason]}
-    for i in res_reports.keys():
-        res_element.append(all_element[i])
-    keys_rest_arr = list(res_reports.keys())[:10]
-    res_rest_elem = []
-    res_rest_rep = {}
-    for i in keys_rest_arr:
-        res_rest_elem.append(all_element[i])
-        res_rest_rep[i] = res_reports[i]
-    return [table["columns"], res_rest_elem, res_rest_rep]
+# def get_info_report(table):
+#     res_reports = {}
+#     all_element = table["offers"]
+#     res_element = []
+#     report_all = list(reversed(Report.objects.all().order_by("type")))
+#     for i in report_all:
+#         if i.index in res_reports.keys():
+#             res_reports[i.index][i.column] = [i.type, i.reason]
+#         else:
+#             res_reports[i.index] = {i.column: [i.type, i.reason]}
+#     for i in res_reports.keys():
+#         res_element.append(all_element[i])
+#     keys_rest_arr = list(res_reports.keys())[:10]
+#     res_rest_elem = []
+#     res_rest_rep = {}
+#     for i in keys_rest_arr:
+#         res_rest_elem.append(all_element[i])
+#         res_rest_rep[i] = res_reports[i]
+#     return [table["columns"], res_rest_elem, res_rest_rep]
 
 
 def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/template.xml"):
@@ -89,4 +88,4 @@ def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/temp
         columns.append(tag["localizedname"])
     for param in params:
         columns.append(param["localizedname"])
-    return [columns, res_rest_elem, res_rest_rep]
+    return [columns, res_rest_elem]
