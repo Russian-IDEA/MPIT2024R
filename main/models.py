@@ -10,7 +10,7 @@ class Category(models.Model):
    count = models.IntegerField()
 
    class Meta:
-      db_table = "CategoryMetric"
+      db_table = "categorymetric"
 
 
 class Report(models.Model):

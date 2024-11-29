@@ -1,6 +1,10 @@
 import math
 import pymorphy3
+
 from django.shortcuts import render
+from django.db.models import sql
+from django.db import connection
+
 import urllib
 import lxml
 from lxml import etree
@@ -236,7 +240,6 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 def test_db(request):
     result = parse_file("feeds/yandex_feed.xml")
-    change_value(24903, 2, 154, result["props"])
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -385,7 +388,9 @@ def add_report(report: dict):
 
 
 def saveCategoryMetric(arr):
-    Category.objects.all().delete()
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM categorymetric")
+
     print('creating categories')
     categories = list()
     for i in arr:
@@ -396,7 +401,9 @@ def saveCategoryMetric(arr):
 
 
 def save_report(report: list):
-    Report.objects.all().delete()
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM report")
+
     print('creating reports')
     reports = list()
     for r in report:
@@ -407,7 +414,9 @@ def save_report(report: list):
 
 
 def save_yandex_table(table: list):
-    YandexOffer.objects.all().delete()
+    with connection.cursor() as cursor:
+        cursor.execute("DELETE FROM main_yandexoffer")
+
     print('creating offers')
     offers = list()
     for offer in table:
