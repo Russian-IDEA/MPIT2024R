@@ -1,6 +1,6 @@
 from main.parsing import parse_file, parse_and_save
 from django.shortcuts import render
-from .models import Report
+from .models import Report, YandexOffer
 
 
 def home(request):
@@ -34,3 +34,24 @@ def get_info_report(table):
         res_rest_elem.append(all_element[i])
         res_rest_rep[i] = res_reports[i]
     return [table["columns"], res_rest_elem, res_rest_rep]
+
+
+# def get_info_db():
+#     res_reports = {}
+#     all_element = YandexOffer.objects.all()
+#     res_element = []
+#     report_all = list(reversed(Report.objects.all().order_by("type")))
+#     for i in report_all:
+#         if i.index in res_reports.keys():
+#             res_reports[i.index][i.column] = [i.type, i.reason]
+#         else:
+#             res_reports[i.index] = {i.column: [i.type, i.reason]}
+#     for i in res_reports.keys():
+#         res_element.append(all_element[i])
+#     keys_rest_arr = list(res_reports.keys())[:10]
+#     res_rest_elem = []
+#     res_rest_rep = {}
+#     for i in keys_rest_arr:
+#         res_rest_elem.append(YandexOffer.objects.get(pk=i))
+#         res_rest_rep[i] = res_reports[i]
+#     return [table["columns"], res_rest_elem, res_rest_rep]
