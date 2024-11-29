@@ -101,17 +101,28 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
     if value is None:
         offer_list.append(None)
         if element_type["compulsory"]:
-            report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "compulsory element required", "advice": ""})
+            report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Элемент должен быть указан", "advice": ""})
         return
 
     if value == "" and element_type["compulsory"]:
         report.append(
-            {"index": i, "column": element_type["column_index"], "type": "technical", "reason": "compulsory element is empty", "advice": ""})
+            {"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""})
         return
 
     type = get_type(element_type)
     if type == bool:
-        offer_list.append(parse_bool(value))
+        if element_type["compulsory"] and (value == "" or value is None):
+            report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""})
+
+        if value is None:
+            offer_list.append(None)
+            return
+
+        value = parse_bool(value)
+
+        if value is None:
+            report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Неверный двоичный тип", "advice": ""})
+        offer_list.append(value)
         return
 
     try:
@@ -120,10 +131,10 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         if type == int or type == float:
             if not element_type["negative"] and value < 0:
                 value = None
-                report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
+                report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Значение должно быть неотрицательным", "advice": ""})
     except (ValueError, TypeError):
         value = None
-        report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "invalid type", "advice": ""})
+        report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Неверный тип данных", "advice": ""})
 
     offer_list.append(value)
 
@@ -133,7 +144,7 @@ def insert_element_by_type(i: int, offer_list: list, report: list, element_type:
         offer_list.append(None)
         if element_type["compulsory"]:
             report.append({"index": i, "column": element_type["column_index"], "type": "technical",
-                           "reason": "compulsory element required", "advice": ""})
+                           "reason": "Элемент должен быть указан", "advice": ""})
         return
 
     value = element.text
@@ -162,7 +173,7 @@ def parse_xml(root, offer_attribs, tags, params) -> dict:
 
         id = offer.attrib.get("id")
         if id in ids:
-            report.append({"index": id, "column": "index", "type": "technical", "reason": "equal index", "advice": ""})
+            report.append({"index": id, "column": "index", "type": "technical", "reason": "Одинаковый индекс", "advice": ""})
             continue
         ids.add(id)
 
@@ -182,7 +193,7 @@ def parse_xml(root, offer_attribs, tags, params) -> dict:
 
         offer_hash = hash_offer_without_id(offer_list)
         if offer_hash in hashs:
-            report.append({"index": id, "column": "hash", "type": "technical", "reason": "equal hash", "advice": ""})
+            report.append({"index": id, "column": "hash", "type": "technical", "reason": "Одинаковые значения полей", "advice": ""})
         else:
             hashs.add(offer_hash)
         offer_list.append(offer_hash)
@@ -278,7 +289,7 @@ def check_price(offers_data: dict):
                 break
         if res_noun == "":
             noun = words[0]
-            report.append({"index": ind, "column": 7, "type": "logical", "reason": "noun required in name", "advice": "Название"})
+            report.append({"index": ind, "column": 7, "type": "logical", "reason": "В названии должно быть существительное", "advice": "Название"})
         else:
             noun = res_noun
         c_r = len(category)
@@ -309,8 +320,10 @@ def check_price(offers_data: dict):
         max_price = res_category[c[2]][2] + 4 * res_category[c[2]][3]
         min_price = res_category[c[2]][2] - 4 * res_category[c[2]][3]
 
-        if float(c[1]) > float(max_price) or float(c[1]) < float(min_price):
-            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "price too high/low", "advice": res_category[c[2]][2]})
+        if float(c[1]) > float(max_price):
+            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "Цена слишком высокая", "advice": round(res_category[c[2]][2], 2)})
+        elif float(c[1]) < float(min_price):
+            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "Цена слишком низкая", "advice": round(res_category[c[2]][2], 2)})
 
     saveCategoryMetric(res_category)
 
@@ -339,8 +352,8 @@ def validate_change(change: dict):
     negative = parse_bool(prop["negative"])
 
     if compulsory and (change["value"] is None or change["value"] == ""):
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "compulsory", "advice": ""}
-        add_report(report)
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""}
+        # add_report(report)
         return {"valid": False, "report": report}
 
     if type == bool:
@@ -349,8 +362,8 @@ def validate_change(change: dict):
             change_value(change["index"], change["column"], result, columns)
             return {"valid": True}
 
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid bool", "advice": ""}
-        add_report(report)
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Неверный двоичный тип", "advice": ""}
+        # add_report(report)
         return {"valid": False, "report": report}
 
     try:
@@ -358,12 +371,12 @@ def validate_change(change: dict):
 
         if type == int or type == float:
             if not negative and value < 0:
-                report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "value must be non-negative", "advice": ""}
-                add_report(report)
+                report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Значение должно быть неотрицательным", "advice": ""}
+                # add_report(report)
                 return {"valid": False, "report": report}
     except (ValueError, TypeError):
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid type", "advice": ""}
-        add_report(report)
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Неверный тип данных", "advice": ""}
+        # add_report(report)
         return {"valid": False, "report": report}
 
     change_value(change["index"], change["column"], value, columns)
