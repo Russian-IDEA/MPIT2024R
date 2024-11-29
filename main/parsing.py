@@ -182,7 +182,16 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
 
 def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
     result = parse_file(file_name, template_file_name)
+    print('saving xml')
     save_yandex_table(result["offers"])
+    print('xml saved')
+    print('checking price')
+    check_price(result)
+    print('price checked')
+    save_report(result["report"])
+
+    return result
+
 
 def test_db(request):
     result = parse_file()
