@@ -329,27 +329,31 @@ def validate_change(change: dict):
     negative = parse_bool(prop["negative"])
 
     if compulsory and (change["value"] is None or change["value"] == ""):
-        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "compulsory", "advice": ""})
-        return {"valid": False, "reason": "compulsory"}
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "compulsory", "advice": ""}
+        add_report(report)
+        return {"valid": False, "report": report}
 
     if type == bool:
         result = parse_bool(change["value"])
         if result is not None:
             return {"valid": True}
 
-        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid bool", "advice": ""})
-        return {"valid": False, "reason": "bool"}
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid bool", "advice": ""}
+        add_report(report)
+        return {"valid": False, "report": report}
 
     try:
         value = type(change["value"])
 
         if type == int or type == float:
             if not negative and value < 0:
-                add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
-                return {"valid": False, "reason": "non-negative"}
+                report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "value must be non-negative", "advice": ""}
+                add_report(report)
+                return {"valid": False, "report": report}
     except (ValueError, TypeError):
-        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid type", "advice": ""})
-        return {"valid": False, "reason": "type"}
+        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid type", "advice": ""}
+        add_report(report)
+        return {"valid": False, "report": report}
 
     return {"valid": True}
 

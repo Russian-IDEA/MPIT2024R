@@ -3,8 +3,11 @@ import urllib.request
 
 import lxml
 from lxml import etree
-from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names
+from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change
+
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+
 from .models import Report, YandexOffer
 
 
@@ -31,9 +34,12 @@ def upload(request):
 
 def update_value_bd(request):
     if request.method == 'POST':
-        id = request.POST['id']
-        category = request.POST['category']
+        id = int(request.POST['id'])
+        column = request.POST['column']
         new_value = request.POST['new_value']
+
+        result = validate_change({"id": id, "column": column, "value": new_value})
+        return result
     # return
 
 
