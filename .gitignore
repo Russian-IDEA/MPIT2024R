@@ -1,4 +1,3 @@
 .idea
 MPITR/settings.py
-feeds/yandex_feed.xml
-feeds/san_yandex_feed.xml
+feeds
