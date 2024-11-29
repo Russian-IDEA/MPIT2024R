@@ -1,19 +1,64 @@
 <offer>
-    <attribute type="int" compulsory="true">id</attribute>
-    <attribute type="bool" compulsory="true">available</attribute>
+    <attribute type="int" compulsory="true">
+        <name>id</name>
+        <localizedname>ID</localizedname>
+    </attribute>
+    <attribute type="bool" compulsory="true">
+        <name>available</name>
+        <localizedname>Доступен</localizedname>
+    </attribute>
 
-    <tag type="float" compulsory="true">price</tag>
-    <tag type="str" compulsory="true">currencyId</tag>
-    <tag type="int" compulsory="true">categoryId</tag>
-    <tag type="str" compulsory="true">picture</tag>
-    <tag type="str" compulsory="true">name</tag>
-    <tag type="str" compulsory="true">vendor</tag>
-    <tag type="str" compulsory="true">description</tag>
-    <tag type="int" compulsory="true">barcode</tag>
+    <tag type="float" compulsory="true">
+        <name>price</name>
+        <localizedname>Цена</localizedname>
+    </tag>
+    <tag type="str" compulsory="true">
+        <name>currencyId</name>
+        <localizedname>Валюта</localizedname>
+    </tag>
+    <tag type="int" compulsory="true">
+        <name>categoryId</name>
+        <localizedname>ID категории</localizedname>
+    </tag>
+    <tag type="str" compulsory="true">
+        <name>picture</name>
+        <localizedname>Изображение</localizedname>
+    </tag>
+    <tag type="str" compulsory="true">
+        <name>name</name>
+        <localizedname>Название</localizedname>
+    </tag>
+    <tag type="str" compulsory="true">
+        <name>vendor</name>
+        <localizedname>Поставщик</localizedname>
+    </tag>
+    <tag type="str" compulsory="true">
+        <name>description</name>
+        <localizedname>Описание</localizedname>
+    </tag>
+    <tag type="int" compulsory="true">
+        <name>barcode</name>
+        <localizedname>Баркод</localizedname>
+    </tag>
 
-    <param type="int" compulsory="true">Артикул</param>
-    <param type="float" compulsory="true">Рейтинг</param>
-    <param type="int" compulsory="true">Количество отзывов</param>
-    <param type="float" compulsory="true">Скидка</param>
-    <param type="bool" compulsory="true">Новинка</param>
+    <param type="int" compulsory="true">
+        <name>Артикул</name>
+        <localizedname>Артикул</localizedname>
+    </param>
+    <param type="float" compulsory="true">
+        <name>Рейтинг</name>
+        <localizedname>Рейтинг</localizedname>
+    </param>
+    <param type="int" compulsory="true">
+        <name>Количество отзывов</name>
+        <localizedname>Количество отзывов</localizedname>
+    </param>
+    <param type="float" compulsory="true">
+        <name>Скидка</name>
+        <localizedname>Скидка</localizedname>
+    </param>
+    <param type="bool" compulsory="true">
+        <name>Новинка</name>
+        <localizedname>Новинка</localizedname>
+    </param>
 </offer>

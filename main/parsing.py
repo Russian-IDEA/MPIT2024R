@@ -16,24 +16,27 @@ parser = etree.XMLParser(encoding='utf-8',
 def parse_offer_attribs_tags_names(root):
     attribs = []
     for attrib in root.findall(".//attribute"):
-        name = attrib.text
+        name = attrib.find("name").text
+        localized_name = attrib.find("localizedname").text
         elem_type = attrib.attrib["type"]
         compulsory = bool(attrib.attrib["compulsory"])
-        attribs.append({"name": name, "type": elem_type, "compulsory": compulsory})
+        attribs.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
 
     tags = []
     for tag in root.findall(".//tag"):
-        name = tag.text
+        name = tag.find("name").text
+        localized_name = tag.find("localizedname").text
         elem_type = tag.attrib["type"]
         compulsory = bool(tag.attrib["compulsory"])
-        tags.append({"name": name, "type": elem_type, "compulsory": compulsory})
+        tags.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
 
     params = []
     for param in root.findall(".//param"):
-        name = param.text
+        name = param.find("name").text
+        localized_name = param.find("localizedname").text
         elem_type = param.attrib["type"]
         compulsory = bool(param.attrib["compulsory"])
-        params.append({"name": name, "type": elem_type, "compulsory": compulsory})
+        params.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
 
     return {"attribs": attribs, "tags": tags, "params": params}
 
@@ -170,11 +173,11 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
     # generate columns
     columns = []
     for attrib in offer_attribs:
-        columns.append(attrib["name"])
+        columns.append(attrib["localizedname"])
     for tag in tags:
-        columns.append(tag["name"])
+        columns.append(tag["localizedname"])
     for param in params:
-        columns.append(param["name"])
+        columns.append(param["localizedname"])
     columns.append("hash")
 
     return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"]}
