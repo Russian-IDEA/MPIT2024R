@@ -10,6 +10,9 @@ import lxml
 from lxml import etree
 from cityhash import CityHash64
 import os
+
+from werkzeug.utils import redirect
+
 from .models import Category, Report, YandexOffer
 import requests
 
@@ -250,8 +253,7 @@ def test_db(request):
 
     print('price checked, saving reports')
     save_report(result["report"])
-    return render(request, 'index.html',
-                  {'columns': [], 'table': []})
+    return redirect('/')
 
 
 def check_price(offers_data: dict):
