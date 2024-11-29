@@ -1,3 +1,4 @@
+import json
 import os
 import urllib.request
 
@@ -6,7 +7,7 @@ from lxml import etree
 from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from .models import Report, YandexOffer
 
@@ -39,7 +40,7 @@ def update_value_bd(request):
         new_value = request.POST['new_value']
 
         result = validate_change({"id": id, "column": column, "value": new_value})
-        return result
+        return JsonResponse(result)
     # return
 
 
