@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from main.views import home
+from main.views import home, upload
 from django.conf.urls.static import static
 from django.conf import settings
 from main.parsing import test_db
@@ -24,6 +24,7 @@ from main.parsing import test_db
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home),
+    path("upload/", upload),
     path("testDB/", test_db)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

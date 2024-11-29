@@ -1,12 +1,13 @@
 import math
 import pymorphy3
 from django.shortcuts import render
-
+import urllib
 import lxml
 from lxml import etree
 from cityhash import CityHash64
-
+import os
 from .models import Category, Report, YandexOffer
+import requests
 
 
 parser = etree.XMLParser(encoding='utf-8',
@@ -313,7 +314,6 @@ def save_report(report: list):
         reports.append(db_report)
     print('adding reports')
     Report.objects.bulk_create(reports, 1000)
-
 
 
 def save_yandex_table(table: list):
