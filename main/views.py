@@ -9,7 +9,7 @@ from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_na
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 
-from .models import Report, YandexOffer
+from .models import Report, YandexOffer, Current
 
 
 def home(request):
@@ -17,6 +17,8 @@ def home(request):
     # table = parse_and_save(f'feeds/{filename}')
     # table = parse_and_save('/Users/user/PycharmProjects/MPITR/feeds/yandex_feed.xml')
     # report = get_info_report(table)
+    if not Current.objects.exists():
+        return redirect('/upload')
     report = get_info_db()
     return render(request, 'index.html',
                   {
@@ -30,6 +32,7 @@ def upload(request):
         files_number = len([name for name in os.listdir('feeds/')])
         filename = f'feeds/file{files_number + 1}.xml'
         urllib.request.urlretrieve(path, filename)
+        Current.objects.create(current=filename)
         return redirect('/')
     return render(request, 'upload.html')
 

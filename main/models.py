@@ -42,3 +42,7 @@ class YandexOffer(models.Model):
    review_amount = models.BigIntegerField(null=True)
    sale = models.FloatField(null=True)
    newby = models.BooleanField(null=True)
+
+
+class Current(models.Model):
+   current = models.CharField(max_length=100, primary_key=True)
