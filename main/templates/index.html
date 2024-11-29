@@ -45,15 +45,18 @@
             new_value: newValue
           })
         }).then(response => {
-            const data = response.body;
-            if (data.valid) {
-                const element = document.getElementById(index+'-'+category);
-                element.innerText = newValue;
-                element.classList += ' corrected-error';
-                setDialogState(DialogState.NO_DIALOG);
-            } else {
-                setError(data.report.reason);
-            }
+            response.json().then(
+                data => {
+                      if (data.valid) {
+                        const element = document.getElementById(index+'-'+category);
+                        element.innerText = newValue;
+                        element.classList += ' corrected-error';
+                        setDialogState(DialogState.NO_DIALOG);
+                    } else {
+                        setError(data.report.reason);
+                    }
+                }
+            );
         });
     };
 
@@ -66,8 +69,8 @@
                     <div className="dialog-text-container">
                         <textarea className="main-font" name="" placeholder="Введите правки" value={inputValue} onChange={e => setInputValue(e.target.value)}></textarea>
                     </div>
-                    <span>{ error }</span>
                     <div className="dialog-buttons-container">
+                        <span>{ error }</span>
                         <div className="dialog-buttons-row">
                             <button onClick={_ => onSuccess(index, category, inputValue, setDialogState, setError)} className="btn green-button main-font">Исправить</button>
                         </div>
@@ -240,6 +243,9 @@
                 {dialogState === DialogState.ERROR_DIALOG ? <DialogError position={ positionDialog } setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}
                 {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect position={ positionDialog } setDialogState={setDialogState} index={index} category={category}/> : ''}
                 <footer>
+                    {% if download %}
+                        <button className="btn green-button main-font">Скачать файл</button>
+                    {% endif %}
                     <form method="post">{csrf_token}
                         <button type="submit" className="btn green-button main-font">Далее</button>
                     </form>

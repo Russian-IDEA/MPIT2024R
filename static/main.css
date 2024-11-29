@@ -142,7 +142,7 @@ textarea {
     border: none;
     resize: none;
     width: 100%;
-    height: 400px;
+    height: 350px;
 }
 
 .grid {
@@ -198,7 +198,7 @@ header {
 footer {
     display: flex;
     flex-direction: row;
-    justify-content: right;
+    justify-content: space-between;
     width: 95%;
     position: fixed;
     bottom: 0;
@@ -210,6 +210,11 @@ footer {
 
 footer button {
     width: 200px !important;
+}
+
+footer form:only-child {
+    align-self: flex-end;
+    margin-left: auto;
 }
 
 .logo-text {
@@ -275,6 +280,8 @@ input {
 
 span {
     color: red;
+    font-size: 14px;
+    margin: 0 30px;
 }
 
 .corrected-error {

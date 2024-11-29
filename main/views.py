@@ -20,10 +20,18 @@ def home(request):
     if not Current.objects.exists():
         return redirect('/upload')
     report = get_info_db()
+    table = report[1]
+    download = True
+    if len(table) > 0:
+        for el in table[0][1:]:
+            if 'type' in el.keys() and el['type'] == 'technical':
+                download = False
+                break
     return render(request, 'index.html',
                   {
                       'columns': report[0],
-                      'table': report[1]
+                      'table': table,
+                      'download': download
                   })
 
 def upload(request):
