@@ -12,7 +12,7 @@ class Category(models.Model):
       db_table = "CategoryMetric"
 
 
-class Reason(models.Model):
+class Report(models.Model):
    index = models.IntegerField(primary_key=True)
    column = models.CharField(max_length=50)
    type = models.CharField(max_length=50)
@@ -20,3 +20,21 @@ class Reason(models.Model):
 
    class Meta:
       db_table = "report"
+
+
+class YandexOffer(models.Model):
+   index = models.IntegerField(primary_key=True)
+   available = models.BooleanField(null=True)
+   price = models.FloatField(null=True)
+   currencyId = models.CharField(max_length=50, null=True)
+   categoryId = models.IntegerField(null=True)
+   picture = models.CharField(max_length=50, null=True)
+   name = models.CharField(max_length=50, null=True)
+   vendor = models.CharField(max_length=50, null=True)
+   description = models.CharField(max_length=50, null=True)
+   barcode = models.IntegerField(null=True)
+   article = models.IntegerField(null=True)
+   rating = models.FloatField(null=True)
+   review_amount = models.IntegerField(null=True)
+   sale = models.FloatField(null=True)
+   newby = models.BooleanField(null=True)
