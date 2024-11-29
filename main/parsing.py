@@ -333,7 +333,7 @@ def validate_change(change: dict):
     for param in params:
         columns.append(param)
 
-    prop = columns[change["column_index"]]
+    prop = columns[change["column"]]
     type = get_type(prop)
     compulsory = parse_bool(prop["compulsory"])
     negative = parse_bool(prop["negative"])

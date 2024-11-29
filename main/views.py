@@ -45,9 +45,9 @@ def update_value_bd(request):
         column = body['column']
         new_value = body['new_value']
 
-        result = validate_change({"id": id, "column": column, "value": new_value})
+        result = validate_change({"index": id, "column": column, "value": new_value})
         return JsonResponse(result)
-    # return
+    return JsonResponse({"ohno": "we are doomed"})
 
 
 # def get_info_report(table):
