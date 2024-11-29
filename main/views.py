@@ -4,7 +4,8 @@ from .models import Report
 
 
 def home(request):
-    table = parse_and_save('feeds/yandex_feed.xml')
+    filename = request.GET['filename']
+    table = parse_and_save(f'feeds/{filename}')
     report = get_info_report(table)
     return render(request, 'index.html',
                   {

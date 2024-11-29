@@ -126,7 +126,7 @@ body {
 .white-button {
     background-color: white;
     color: black;
-    border: 1px solid black;
+    border: 1px solid rgba(146, 146, 146, 1);
 }
 
 .white-button:hover {
@@ -222,6 +222,7 @@ input {
     border-radius: 20px;
     padding: 0 10px;
     width: 273px;
+    border: 1px solid rgba(146, 146, 146, 1);
 }
 
 #btn-download {
