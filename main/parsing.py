@@ -276,7 +276,7 @@ def check_price(offers_data: dict):
                 break
         if res_noun == "":
             noun = words[0]
-            report.append({"index": ind, "column": 7, "type": "logical", "reason": "noun required in name", "advice": "Need noun"})
+            report.append({"index": ind, "column": 7, "type": "logical", "reason": "noun required in name", "advice": "Название"})
         else:
             noun = res_noun
         c_r = len(category)
@@ -301,14 +301,14 @@ def check_price(offers_data: dict):
         try:
             res_category.append([i, c, M_category[i][0], math.sqrt(D_category[i] - (float(M_category[i][0]) ** 2)), M_category[i][1]])
         except ValueError:
-            print("pizdec")
+            print("Skipping. Value negative.")
 
     for c in res_offers:
         max_price = res_category[c[2]][2] + 4 * res_category[c[2]][3]
         min_price = res_category[c[2]][2] - 4 * res_category[c[2]][3]
 
         if float(c[1]) > float(max_price) or float(c[1]) < float(min_price):
-            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "price too high/low", "advice": "Make price lower or higher"})
+            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "price too high/low", "advice": res_category[c[2]][2]})
 
     saveCategoryMetric(res_category)
 
