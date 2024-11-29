@@ -24,6 +24,7 @@ from main.parsing import test_db
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", home),
+    path("upload/", home),
     path("testDB/", test_db)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

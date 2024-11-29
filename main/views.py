@@ -14,6 +14,10 @@ def home(request):
                       'report': report[2]
                   })
 
+def upload(request):
+
+    return 'meow'
+
 
 def get_info_report(table):
     res_reports = {}
