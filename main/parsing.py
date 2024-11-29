@@ -39,15 +39,14 @@ def parse_offer_attribs_tags_names(root):
 
 
 def get_type(element: dict):
-    match element["type"]:
-        case "int":
-            return int
-        case "str":
-            return str
-        case "bool":
-            return bool
-        case "float":
-            return float
+    if element["type"] == "int":
+        return int
+    elif element["type"] == "str":
+        return str
+    elif element["type"] == "bool":
+        return str
+    elif element["type"] == "float":
+        return str
 
 
 def insert_value_by_type(i: int, offer_list: list, report: list, element_type: dict, value: str):
@@ -64,26 +63,22 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         return
 
     if get_type(element_type) == bool:
-        match value:
-            case 'Да':
-                offer_list.append(True)
-            case 'Нет':
-                offer_list.append(False)
-            case 'да':
-                offer_list.append(True)
-            case 'нет':
-                offer_list.append(False)
-            case 'True':
-                offer_list.append(True)
-            case 'False':
-                offer_list.append(False)
-            case 'true':
-                offer_list.append(True)
-            case 'false':
-                offer_list.append(False)
-            case _:
-                report.append(
-                    {"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid bool"})
+        if value == 'Да':
+            offer_list.append(True)
+        elif value == 'Нет':
+            offer_list.append(False)
+        elif value == 'да':
+            offer_list.append(False)
+        elif value == 'нет':
+            offer_list.append(False)
+        elif value == 'Yes':
+            offer_list.append(False)
+        elif value == 'No':
+            offer_list.append(False)
+        elif value == 'yes':
+            offer_list.append(False)
+        elif value == 'no':
+            offer_list.append(False)
         return
 
     try:
