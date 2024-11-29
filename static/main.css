@@ -20,10 +20,16 @@ body {
 .darkened {
     background: rgba(0, 0, 0, 0.5);
     position: fixed;
-    top: 0;
-    right: 0;
     bottom: 0;
-    left: 0;
+    right: 0;
+}
+
+.darkened #btn-download {
+    opacity: .1;
+}
+
+.darkened input {
+    opacity: .1;
 }
 
 .dialog-container {
@@ -43,9 +49,9 @@ body {
 .dialog {
     position: absolute;
     background-color: white;
-    top: 120px;
     width: 395px;
     border-radius: 20px;
+    margin-inline: auto;
 }
 
 .error-message {
@@ -185,6 +191,7 @@ header {
     top: 0;
     left: 0;
     padding: 10px 40px;
+    background-color: white;
 }
 
 .logo-text {
@@ -219,4 +226,9 @@ input {
 
 #btn-download {
     width: 144px;
+}
+
+.corrected {
+    max-height: 400px;
+    overflow-y: scroll;
 }
