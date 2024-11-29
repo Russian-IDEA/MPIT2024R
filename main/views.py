@@ -49,7 +49,7 @@ def upload(request):
 #     return [table["columns"], res_rest_elem, res_rest_rep]
 
 
-def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/template.xml"):
+def get_info_db(template_file_name="feeds/template.xml"):
     dict_const = {"index": 0, "available": 1, "price": 2, "currencyId": 3, "categoryId": 4, "picture": 5, "name": 6, "vendor": 7,
            "description": 8, "barcode": 9, "article": 10, "rating": 11, "review_amount": 12, "sale": 13, "newby": 14}
     res_reports = {}

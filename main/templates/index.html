@@ -96,7 +96,7 @@
 
     const Table = ({onClick}) => {
         const errorStyle = {
-            background: "red",
+            background: "rgba(208, 69, 51, 0.5)",
             cursor: "pointer"
         } 
         return (
@@ -116,11 +116,11 @@
                         {% else %}
                             className="grid-el-rect"
                         {% endif %}
-{#                        {% if row.0 in report.keys and forloop.counter != 1 and columns.forloop.counter in report.row.0.keys %}#}
-{#                            onClick={onClick}#}
-{#                            style={errorStyle}#}
-{#                        {% endif %}#}
-                        text="{{ el }}"
+                        {% if row.0 in report.keys and forloop.counter != 1 %}
+                            onClick={onClick}
+                            style={errorStyle}
+                        {% endif %}
+                        text="{{ el.value }}"
                         index="{{ row.0 }}" category="{{ forloop.counter }}"/>
                     {% endfor %}
                 {% endfor %}
