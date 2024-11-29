@@ -1,5 +1,5 @@
 <offer>
-    <attribute type="int" compulsory="true">
+    <attribute type="int" compulsory="true" negative="false">
         <name>id</name>
         <localizedname>ID</localizedname>
     </attribute>
@@ -16,7 +16,7 @@
         <name>currencyId</name>
         <localizedname>Валюта</localizedname>
     </tag>
-    <tag type="int" compulsory="true">
+    <tag type="int" compulsory="true" negative="false">
         <name>categoryId</name>
         <localizedname>ID категории</localizedname>
     </tag>
@@ -36,24 +36,24 @@
         <name>description</name>
         <localizedname>Описание</localizedname>
     </tag>
-    <tag type="int" compulsory="true">
+    <tag type="str" compulsory="true">
         <name>barcode</name>
         <localizedname>Баркод</localizedname>
     </tag>
 
-    <param type="int" compulsory="true">
+    <param type="str" compulsory="true">
         <name>Артикул</name>
         <localizedname>Артикул</localizedname>
     </param>
-    <param type="float" compulsory="true">
+    <param type="float" compulsory="true" negative="false">
         <name>Рейтинг</name>
         <localizedname>Рейтинг</localizedname>
     </param>
-    <param type="int" compulsory="true">
+    <param type="int" compulsory="true" negative="false">
         <name>Количество отзывов</name>
         <localizedname>Количество отзывов</localizedname>
     </param>
-    <param type="float" compulsory="true">
+    <param type="float" compulsory="true" negative="false">
         <name>Скидка</name>
         <localizedname>Скидка</localizedname>
     </param>

@@ -13,6 +13,36 @@ parser = etree.XMLParser(encoding='utf-8',
                          recover=True)
 
 
+def parse_bool(value: str):
+    if value is None:
+        return None
+
+    if value == 'Да':
+        return True
+    elif value == 'Нет':
+        return False
+    elif value == 'да':
+        return True
+    elif value == 'нет':
+        return False
+    elif value == 'Yes':
+        return True
+    elif value == 'No':
+        return False
+    elif value == 'yes':
+        return True
+    elif value == 'no':
+        return False
+    elif value == 'true':
+        return True
+    elif value == 'false':
+        return False
+    elif value == 'True':
+        return True
+    elif value == 'False':
+        return False
+
+
 def parse_offer_attribs_tags_names(root):
     attribs = []
     for attrib in root.findall(".//attribute"):
@@ -20,7 +50,8 @@ def parse_offer_attribs_tags_names(root):
         localized_name = attrib.find("localizedname").text
         elem_type = attrib.attrib["type"]
         compulsory = bool(attrib.attrib["compulsory"])
-        attribs.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
+        negative = parse_bool(attrib.attrib.get("negative"))
+        attribs.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory, "negative": negative})
 
     tags = []
     for tag in root.findall(".//tag"):
@@ -28,7 +59,8 @@ def parse_offer_attribs_tags_names(root):
         localized_name = tag.find("localizedname").text
         elem_type = tag.attrib["type"]
         compulsory = bool(tag.attrib["compulsory"])
-        tags.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
+        negative = parse_bool(tag.attrib.get("negative"))
+        tags.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory, "negative": negative})
 
     params = []
     for param in root.findall(".//param"):
@@ -36,10 +68,10 @@ def parse_offer_attribs_tags_names(root):
         localized_name = param.find("localizedname").text
         elem_type = param.attrib["type"]
         compulsory = bool(param.attrib["compulsory"])
-        params.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory})
+        negative = parse_bool(param.attrib.get("negative"))
+        params.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory, "negative": negative})
 
     return {"attribs": attribs, "tags": tags, "params": params}
-
 
 def get_type(element: dict):
     if element["type"] == "int":
@@ -64,35 +96,18 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
             {"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element is empty", "advice": ""})
         return
 
-    if get_type(element_type) == bool:
-        if value == 'Да':
-            offer_list.append(True)
-        elif value == 'Нет':
-            offer_list.append(False)
-        elif value == 'да':
-            offer_list.append(True)
-        elif value == 'нет':
-            offer_list.append(False)
-        elif value == 'Yes':
-            offer_list.append(True)
-        elif value == 'No':
-            offer_list.append(False)
-        elif value == 'yes':
-            offer_list.append(True)
-        elif value == 'no':
-            offer_list.append(False)
-        elif value == 'true':
-            offer_list.append(True)
-        elif value == 'false':
-            offer_list.append(False)
-        elif value == 'True':
-            offer_list.append(True)
-        elif value == 'False':
-            offer_list.append(False)
+    type = get_type(element_type)
+    if type == bool:
+        offer_list.append(parse_bool(value))
         return
 
     try:
-        value = get_type(element_type)(value)
+        value = type(value)
+
+        if type == int or type == float:
+            if not element_type["negative"] and value < 0:
+                value = None
+                report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
     except (ValueError, TypeError):
         value = None
         report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid type", "advice": ""})
@@ -126,28 +141,35 @@ def parse_xml(root, offer_attribs, tags, params) -> dict:
     report = list()
     offers = list()
     hashs = set()
+    ids = set()
 
     offer_elements = root.findall(".//offer")
     for i in range(len(offer_elements)):
         offer = offer_elements[i]
 
+        id = offer.attrib.get("id")
+        if id in ids:
+            report.append({"index": id, "column": "index", "type": "technical", "reason": "equal index", "advice": ""})
+            continue
+        ids.add(id)
+
         offer_list = list()
 
         for attrib in offer_attribs:
-            insert_value_by_type(i, offer_list, report, attrib, offer.attrib.get(attrib["name"]))
+            insert_value_by_type(id, offer_list, report, attrib, offer.attrib.get(attrib["name"]))
 
         for tag in tags:
-            insert_element_by_type(i, offer_list, report, tag, offer.find(tag["name"]))
+            insert_element_by_type(id, offer_list, report, tag, offer.find(tag["name"]))
 
         param_dict = dict()
         for param in offer.findall("param"):
             param_dict[param.attrib["name"]] = param.text
         for param in params:
-            insert_value_by_type(i, offer_list, report, param, param_dict.get(param["name"]))
+            insert_value_by_type(id, offer_list, report, param, param_dict.get(param["name"]))
 
         offer_hash = hash_offer_without_id(offer_list)
         if offer_hash in hashs:
-            report.append({"index": i, "column": "hash", "type": "technical", "reason": "equal hash", "advice": ""})
+            report.append({"index": id, "column": "hash", "type": "technical", "reason": "equal hash", "advice": ""})
         else:
             hashs.add(offer_hash)
         offer_list.append(offer_hash)
@@ -197,7 +219,7 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 
 def test_db(request):
-    result = parse_file()
+    result = parse_file("feeds/yandex_feed.xml")
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -278,7 +300,7 @@ def saveCategoryMetric(arr):
     for i in arr:
         obj = Category(id_category=int(i[0]), name=str(i[1]), mat_exp=float(i[2]), sigm=float(i[3]), count=int(i[4]))
         categories.append(obj)
-    print('adding')
+    print('adding categories')
     Category.objects.bulk_create(categories, 1000)
 
 
@@ -289,7 +311,7 @@ def save_report(report: list):
     for r in report:
         db_report = Report(index=r["index"], column=r["column"], type=r["type"], reason=r["reason"], advice=r["advice"])
         reports.append(db_report)
-    print('adding')
+    print('adding reports')
     Report.objects.bulk_create(reports, 1000)
 
 
@@ -299,11 +321,14 @@ def save_yandex_table(table: list):
     print('creating offers')
     offers = list()
     for offer in table:
+
         db_offer = YandexOffer(index=offer[0], available=offer[1], price=offer[2], currencyId=offer[3],
                                categoryId=offer[4], picture=offer[5], name=offer[6],
                                vendor=offer[7], description=offer[8], barcode=offer[9],
                                article=offer[10], rating=offer[11], review_amount=offer[12],
                                sale=offer[13], newby=offer[14])
         offers.append(db_offer)
-    print('adding')
+
+    print('adding offers')
     YandexOffer.objects.bulk_create(offers, 1000)
+
