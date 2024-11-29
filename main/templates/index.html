@@ -115,6 +115,16 @@
             </div>
         );
     }
+    
+    const Link = () => {
+        return (
+            <div className="link-block">
+                <p className="link-marketplace">ссылка на маркетплейс</p>
+                <input type="text" placeholder="ссылка"/>
+                <button id="btn-download" className="btn white-button main-font">загрузить</button>
+            </div>
+        );
+    }
 
     const App = () => {
         const [dialogState, setDialogState] = useState(DialogState.NO_DIALOG);
@@ -137,6 +147,7 @@
                     <div className="help">помощь</div>
                 </header>
                 <div className="content" onClick={_ => dialogState !== DialogState.NO_DIALOG ? setDialogState(DialogState.NO_DIALOG) : null}>
+                    <Link/>
                     <Table onClick={onElemClick}/>
                 </div>
                 {dialogState === DialogState.ERROR_DIALOG ? <DialogError setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}

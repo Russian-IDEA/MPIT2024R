@@ -180,11 +180,11 @@ header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 100%;
+    width: 95%;
     position: fixed;
     top: 0;
     left: 0;
-    padding: 20px;
+    padding: 10px 40px;
 }
 
 .logo-text {
@@ -193,10 +193,30 @@ header {
 }
 
 .content {
-    margin-top: 50px;
+    margin-top: 70px;
 }
 
 .help {
     font-size: 32px;
 }
 
+.link-marketplace {
+    font-size: 20px;
+    margin: 20px;
+}
+
+.link-block {
+    display: flex;
+    align-items: baseline;
+}
+
+input {
+    height: 30px;
+    border-radius: 20px;
+    padding: 0 10px;
+    width: 273px;
+}
+
+#btn-download {
+    width: 144px;
+}
