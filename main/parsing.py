@@ -321,3 +321,4 @@ def save_file(url="https://disk.yandex.ru/d/KObVs6H2tcehqQ"):
     ufr = requests.get(url)
     f.write(ufr.content)
     f.close()
+    return

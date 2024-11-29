@@ -1,3 +1,5 @@
+import os
+import urllib.request
 from main.parsing import parse_file, parse_and_save
 from django.shortcuts import render
 from .models import Report, YandexOffer
@@ -15,8 +17,11 @@ def home(request):
                   })
 
 def upload(request):
-
-    return 'meow'
+    if request.method == 'POST':
+        path = request.POST['path']
+        files_number = len([name for name in os.listdir('feeds/') if os.path.isfile(name)])
+        urllib.request.urlretrieve(path, f'feeds/file{files_number + 1}.xml')
+    return render(request, 'upload.html')
 
 
 def get_info_report(table):

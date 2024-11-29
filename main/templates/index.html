@@ -119,16 +119,6 @@
         );
     }
     
-    const Link = () => {
-        return (
-            <div className="link-block">
-                <p className="link-marketplace">ссылка на маркетплейс</p>
-                <input type="text" placeholder="ссылка"/>
-                <button id="btn-download" className="btn white-button main-font">загрузить</button>
-            </div>
-        );
-    }
-    
     let scrolledX = 0, scrolledY = 0;
 
     const App = () => {
@@ -199,7 +189,6 @@
                     <div className="help">помощь</div>
                 </header>
                 <div className="content" onClick={emptyClick}>
-                    <Link/>
                     <Table onClick={onElemClick}/>
                 </div>
                 {dialogState === DialogState.ERROR_DIALOG ? <DialogError position={ positionDialog } setDialogState={setDialogState} correctMessage={correctMessage} errorMessage={errorMessage} index={index} category={category}/> : ''}
