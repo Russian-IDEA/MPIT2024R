@@ -56,9 +56,9 @@ def get_info_db(template_file_name="feeds/template.xml"):
     report_all = list(reversed(Report.objects.all().order_by("type")))
     for i in report_all:
         if i.index in res_reports.keys():
-            res_reports[i.index][i.column] = [i.type, i.reason]
+            res_reports[i.index][i.column] = [i.type, i.reason, i.advice]
         else:
-            res_reports[i.index] = {i.column: [i.type, i.reason]}
+            res_reports[i.index] = {i.column: [i.type, i.reason, i.advice]}
     keys_rest_arr = list(res_reports.keys())[:10]
     res_rest_elem = []
     res_rest_rep = {}
@@ -71,6 +71,7 @@ def get_info_db(template_file_name="feeds/template.xml"):
             k = dict_const[j]
             res_elem[k]["type"] = res_reports[i][j][0]
             res_elem[k]["reason"] = res_reports[i][j][1]
+            res_elem[k]["advice"] = res_reports[i][j][2]
         res_rest_elem.append(res_elem)
         res_rest_rep[i] = res_reports[i]
 
