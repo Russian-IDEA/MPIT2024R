@@ -43,6 +43,8 @@ def parse_bool(value: str):
     elif value == 'False':
         return False
 
+    return None
+
 
 def parse_offer_attribs_tags_names(root):
     attribs = []
@@ -220,7 +222,7 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 
 def test_db(request):
-    result = parse_file("feeds/yandex_feed.xml")
+    result = parse_file("feeds/san_yandex_feed.xml")
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -282,7 +284,10 @@ def check_price(offers_data: dict):
 
     res_category = []
     for i, c in enumerate(category):
-        res_category.append([i, c, M_category[i][0], math.sqrt(D_category[i] - (float(M_category[i][0]) ** 2)), M_category[i][1]])
+        try:
+            res_category.append([i, c, M_category[i][0], math.sqrt(D_category[i] - (float(M_category[i][0]) ** 2)), M_category[i][1]])
+        except ValueError:
+            print("pizdec")
 
     for c in res_offers:
         max_price = res_category[c[2]][2] + 4 * res_category[c[2]][3]
@@ -292,6 +297,48 @@ def check_price(offers_data: dict):
             report.append({"index": c[3], "column": "price", "type": "logical", "reason": "price too high/low", "advice": "Make price lower or higher"})
 
     saveCategoryMetric(res_category)
+
+
+def check_change(change: dict):
+    """change {"index": 0, "column_index": w, "value": "шииш"}"""
+    template = lxml.etree.parse("feeds/template.xml").getroot()
+    parsed_template = parse_offer_attribs_tags_names(template)
+    offer_attribs = parsed_template["attribs"]
+    tags = parsed_template["tags"]
+    params = parsed_template["params"]
+
+    columns = []
+    for attrib in offer_attribs:
+        columns.append(attrib)
+    for tag in tags:
+        columns.append(tag)
+    for param in params:
+        columns.append(param)
+
+    prop = columns[change["column_index"]]
+    type = get_type(prop)
+    compulsory = parse_bool(prop["compulsory"])
+    negative = parse_bool(prop["negative"])
+
+    if compulsory and (change["value"] is None or change["value"] == ""):
+        return {"valid": False, "reason": "compulsory"}
+
+    if type == bool:
+        result = parse_bool(change["value"])
+        if result is not None:
+            return {"valid": True}
+        return {"valid": False, "reason": "bool"}
+
+    try:
+        value = type(change["value"])
+
+        if type == int or type == float:
+            if not negative and value < 0:
+                return {"valid": False, "reason": "non-negative"}
+    except (ValueError, TypeError):
+        return {"valid": False, "reason": "type"}
+
+    return {"valid": True}
 
 
 def saveCategoryMetric(arr):
