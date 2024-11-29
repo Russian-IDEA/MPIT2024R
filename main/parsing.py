@@ -172,7 +172,7 @@ def parse_file(file_name: str = "../feeds/yandex_feed.xml", template_file_name: 
         columns.append(param["name"])
     columns.append("hash")
 
-    return columns, offers
+    return {"columns": columns, "offers": offers}
 
 
 def check_price(request):
