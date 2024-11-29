@@ -294,7 +294,6 @@ def save_report(report: list):
     Report.objects.bulk_create(reports, 1000)
 
 
-
 def save_yandex_table(table: list):
     YandexOffer.objects.all().delete()
     print('creating offers')
@@ -308,17 +307,3 @@ def save_yandex_table(table: list):
         offers.append(db_offer)
     print('adding')
     YandexOffer.objects.bulk_create(offers, 1000)
-
-
-def save_file(url="https://disk.yandex.ru/d/KObVs6H2tcehqQ"):
-    files = os.listdir("/Users/user/PycharmProjects/MPITR/feeds")
-    max_ind = 0
-    for i in files:
-        if "file" in i:
-            num = int((i.split(".")[0])[4:])
-            max_ind = max(max_ind, num)
-    f = open("/Users/user/PycharmProjects/MPITR/feeds/file" + str(max_ind + 1) + ".xml", 'wb')
-    ufr = requests.get(url)
-    f.write(ufr.content)
-    f.close()
-    return
