@@ -3,7 +3,7 @@ from django.db import models
 
 class Category(models.Model):
    id_category = models.IntegerField(primary_key=True)
-   name = models.CharField(max_length=50)
+   name = models.CharField(max_length=500)
    mat_exp = models.FloatField()
    sigm = models.FloatField()
    count = models.IntegerField()
@@ -13,29 +13,30 @@ class Category(models.Model):
 
 
 class Report(models.Model):
-   index = models.IntegerField(primary_key=True)
-   column = models.CharField(max_length=50)
-   type = models.CharField(max_length=50)
-   reason = models.CharField(max_length=50)
+   index = models.BigIntegerField(primary_key=True)
+   column = models.CharField(max_length=500)
+   type = models.CharField(max_length=500)
+   reason = models.CharField(max_length=500)
    advice = models.CharField(max_length=200, default="")
 
    class Meta:
+      unique_together = (('index', 'column'))
       db_table = "report"
 
 
 class YandexOffer(models.Model):
-   index = models.IntegerField(primary_key=True)
+   index = models.BigIntegerField(primary_key=True)
    available = models.BooleanField(null=True)
    price = models.FloatField(null=True)
-   currencyId = models.CharField(max_length=50, null=True)
-   categoryId = models.IntegerField(null=True)
-   picture = models.CharField(max_length=50, null=True)
-   name = models.CharField(max_length=50, null=True)
-   vendor = models.CharField(max_length=50, null=True)
-   description = models.CharField(max_length=50, null=True)
-   barcode = models.IntegerField(null=True)
-   article = models.IntegerField(null=True)
+   currencyId = models.CharField(max_length=500, null=True)
+   categoryId = models.BigIntegerField(null=True)
+   picture = models.CharField(max_length=500, null=True)
+   name = models.CharField(max_length=500, null=True)
+   vendor = models.CharField(max_length=500, null=True)
+   description = models.CharField(max_length=10000, null=True)
+   barcode = models.CharField(max_length=500, null=True)
+   article = models.CharField(max_length=1000, null=True)
    rating = models.FloatField(null=True)
-   review_amount = models.IntegerField(null=True)
+   review_amount = models.BigIntegerField(null=True)
    sale = models.FloatField(null=True)
    newby = models.BooleanField(null=True)
