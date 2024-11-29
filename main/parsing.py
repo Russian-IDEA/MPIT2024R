@@ -6,7 +6,7 @@ import lxml
 from lxml import etree
 from cityhash import CityHash64
 
-from .models import Category, Report
+from .models import Category, Report, YandexOffer
 
 
 parser = etree.XMLParser(encoding='utf-8',
@@ -44,9 +44,9 @@ def get_type(element: dict):
     elif element["type"] == "str":
         return str
     elif element["type"] == "bool":
-        return str
+        return bool
     elif element["type"] == "float":
-        return str
+        return float
 
 
 def insert_value_by_type(i: int, offer_list: list, report: list, element_type: dict, value: str):
@@ -68,16 +68,24 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         elif value == 'Нет':
             offer_list.append(False)
         elif value == 'да':
-            offer_list.append(False)
+            offer_list.append(True)
         elif value == 'нет':
             offer_list.append(False)
         elif value == 'Yes':
-            offer_list.append(False)
+            offer_list.append(True)
         elif value == 'No':
             offer_list.append(False)
         elif value == 'yes':
-            offer_list.append(False)
+            offer_list.append(True)
         elif value == 'no':
+            offer_list.append(False)
+        elif value == 'true':
+            offer_list.append(True)
+        elif value == 'false':
+            offer_list.append(False)
+        elif value == 'True':
+            offer_list.append(True)
+        elif value == 'False':
             offer_list.append(False)
         return
 
@@ -172,14 +180,20 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
 
     return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"]}
 
+
+def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
+    result = parse_file(file_name, template_file_name)
+    save_yandex_table(result["offers"])
+
 def test_db(request):
     result = parse_file()
+    save_yandex_table(result["offers"])
 
-    print('checking price')
-    check_price(result)
-
-    print('price checked, saving reports')
-    save_report(result["report"])
+    # print('checking price')
+    # check_price(result)
+    #
+    # print('price checked, saving reports')
+    # save_report(result["report"])
     return render(request, 'index.html',
                   {'columns': [], 'table': []})
 
@@ -253,3 +267,14 @@ def save_report(report: list):
     for r in report:
         db_report = Report(index=r["index"], column=r["column"], type=r["type"], reason=r["reason"])
         db_report.save()
+
+
+def save_yandex_table(table: list):
+    YandexOffer.objects.all().delete()
+    for offer in table:
+        db_offer = YandexOffer(index=offer[0], available=offer[1], price=offer[2], currencyId=offer[3],
+                               categoryId=offer[4], picture=offer[5], name=offer[6],
+                               vendor=offer[7], description=offer[8], barcode=offer[9],
+                               article=offer[10], rating=offer[11], review_amount=offer[12],
+                               sale=offer[13], newby=offer[14])
+        db_offer.save()
