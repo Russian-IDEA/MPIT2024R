@@ -197,9 +197,9 @@ def check_price(offers_data: dict):
     report = offers_data["report"]
 
     for ind, i in enumerate(offers_arr):
-        if i[7] is None or i[3] is None:
+        if i[6] is None or i[2] is None:
             continue
-        text = i[7]
+        text = i[6]
         words = text.split()
         res_noun = ""
         for word in words:
@@ -215,19 +215,19 @@ def check_price(offers_data: dict):
         c_r = len(category)
         if noun not in category:
             category.append(noun)
-            M_category.append([float(i[3]), 1])
-            D_category.append(float(i[3]) ** 2)
+            M_category.append([float(i[2]), 1])
+            D_category.append(float(i[2]) ** 2)
         else:
             c_r = category.index(noun)
             M_category[category.index(noun)][1] += 1
             M_category[category.index(noun)][0] = M_category[category.index(noun)][0] / \
                                                   M_category[category.index(noun)][1] * (
-                                                              M_category[category.index(noun)][1] - 1) + float(i[3]) / \
+                                                              M_category[category.index(noun)][1] - 1) + float(i[2]) / \
                                                   M_category[category.index(noun)][1]
             D_category[category.index(noun)] = D_category[category.index(noun)] / M_category[category.index(noun)][
-                1] * (M_category[category.index(noun)][1] - 1) + (float(i[3]) ** 2) / M_category[category.index(noun)][
+                1] * (M_category[category.index(noun)][1] - 1) + (float(i[2]) ** 2) / M_category[category.index(noun)][
                                                    1]
-        res_offers.append([text, i[3], c_r, ind + 1])
+        res_offers.append([text, i[2], c_r, ind + 1])
 
     res_category = []
     for i, c in enumerate(category):
