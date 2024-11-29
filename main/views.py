@@ -27,8 +27,9 @@ def home(request):
 def upload(request):
     if request.method == 'POST':
         path = request.POST['path']
-        files_number = len([name for name in os.listdir('feeds/') if os.path.isfile(name)])
-        urllib.request.urlretrieve(path, f'feeds/file{files_number + 1}.xml')
+        files_number = len([name for name in os.listdir('feeds/')])
+        filename = f'feeds/file{files_number + 1}.xml'
+        urllib.request.urlretrieve(path, filename)
         return redirect('/')
     return render(request, 'upload.html')
 

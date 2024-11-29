@@ -229,6 +229,11 @@
                     <div className="logo-text">PEDANT</div>
                     <div className="help">помощь</div>
                 </header>
+                {% if table|length == 0 %}
+                <div className="content">
+                    <h3 className="loading">Загрузка...</h3>
+                </div>
+                {% else %}
                 <div className="content" onClick={emptyClick}>
                     <Table onClick={onElemClick}/>
                 </div>
@@ -239,6 +244,7 @@
                         <button type="submit" className="btn green-button main-font">Далее</button>
                     </form>
                 </footer>
+                {% endif %}
             </div>
         );
     }

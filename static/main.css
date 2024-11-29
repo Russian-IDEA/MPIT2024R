@@ -293,3 +293,7 @@ span {
             background-color: transparent;
         }
     }
+
+.loading {
+    margin: 100px 80px;
+}
