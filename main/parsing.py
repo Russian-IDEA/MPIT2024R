@@ -1,5 +1,5 @@
 import math
-import pymorphy2
+import pymorphy3
 from django.shortcuts import render
 
 import lxml
@@ -190,17 +190,18 @@ def test_db(request):
     save_yandex_table(result["offers"])
     print('xml saved')
 
-    # print('checking price')
-    # check_price(result)
-    #
-    # print('price checked, saving reports')
-    # save_report(result["report"])
+    print('checking price')
+    check_price(result)
+    print('price checked')
+
+    print('price checked, saving reports')
+    save_report(result["report"])
     return render(request, 'index.html',
                   {'columns': [], 'table': []})
 
 
 def check_price(offers_data: dict):
-    morph = pymorphy2.MorphAnalyzer()
+    morph = pymorphy3.MorphAnalyzer()
 
     category = []
     M_category = []
@@ -224,7 +225,7 @@ def check_price(offers_data: dict):
                 break
         if res_noun == "":
             noun = words[0]
-            report.append({"index": ind, "column": offers_cols[7], "type": "logical", "reason": "noun required in name"})
+            report.append({"index": ind, "column": offers_cols[7], "type": "logical", "reason": "noun required in name", "advice": "Need noun"})
         else:
             noun = res_noun
         c_r = len(category)
@@ -253,7 +254,7 @@ def check_price(offers_data: dict):
         min_price = res_category[c[2]][2] - 4 * res_category[c[2]][3]
 
         if float(c[1]) > float(max_price) or float(c[1]) < float(min_price):
-            report.append({"index": c[3], "column": "price", "type": "logical", "reason": "price too high/low"})
+            report.append({"index": c[3], "column": "price", "type": "logical", "reason": "price too high/low", "advice": "Make price lower or higher"})
 
     saveCategoryMetric(res_category)
 
