@@ -10,7 +10,7 @@ from .models import Report, YandexOffer
 
 def home(request):
     # filename = request.GET['filename']
-    # table = parse_and_save(f'feeds/{filename}')
+    # table = parse_and_save(f'feeds/yandex_feed.xml')
     # report = get_info_report(table)
     report = get_info_db()
     return render(request, 'index.html',
@@ -49,7 +49,7 @@ def get_info_report(table):
     return [table["columns"], res_rest_elem, res_rest_rep]
 
 
-def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/template.xml"):
+def get_info_db(template_file_name='feeds/template.xml'):
     res_reports = {}
     report_all = list(reversed(Report.objects.all().order_by("type")))
     for i in report_all:

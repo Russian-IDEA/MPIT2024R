@@ -233,3 +233,8 @@ input {
     max-height: 400px;
     overflow-y: scroll;
 }
+
+.error-cell {
+    background-color: red;
+    opacity: .5;
+}

@@ -85,16 +85,20 @@
         );
     }
     
-    const RowElement = ({className, text, onClick, index, category}) => {
+    const RowElement = ({className, text, onClick, index, category, style}) => {
         const onElemClick = () => {
             onClick("Оффер для " + text, 'Ну всё плохо', index, category);
         }
         return (
-            <div id={index+'-'+category} className={className} onClick={onElemClick}>{ text }</div>
+            <div style={style} id={index+'-'+category} className={className} onClick={onElemClick}>{ text }</div>
         );
     }
 
     const Table = ({onClick}) => {
+        const errorStyle = {
+            background: "red",
+            cursor: "pointer"
+        } 
         return (
             <div className="grid">
                 {% for column in columns %}
@@ -112,7 +116,12 @@
                         {% else %}
                             className="grid-el-rect"
                         {% endif %}
-                        text="{{ el }}" onClick={onClick} index="{{ row.0 }}" category="{{ forloop.counter }}"/>
+{#                        {% if row.0 in report.keys and forloop.counter != 1 and columns.forloop.counter in report.row.0.keys %}#}
+{#                            onClick={onClick}#}
+{#                            style={errorStyle}#}
+{#                        {% endif %}#}
+                        text="{{ el }}"
+                        index="{{ row.0 }}" category="{{ forloop.counter }}"/>
                     {% endfor %}
                 {% endfor %}
             </div>
