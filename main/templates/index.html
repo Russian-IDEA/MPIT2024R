@@ -32,6 +32,18 @@
     };
     
     const onSuccess = (index, category, newValue, setDialogState) => {
+        fetch('http://localhost:8000/url', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: index,
+            category: category,
+            new_value: newValue
+          })
+        });
         const element = document.getElementById(index+'-'+category);
         element.innerText = newValue;
         element.classList += ' corrected-error';

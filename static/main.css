@@ -274,7 +274,18 @@ input {
 }
 
 .corrected-error {
-    background-color: transparent !important;
     cursor: auto !important;
     transition: none !important;
+    animation: anim .7s ease-in-out forwards;
 }
+
+@keyframes anim
+    {
+        0%{
+            background-color: #556727;
+        }
+
+        100%{
+            background-color: transparent;
+        }
+    }
