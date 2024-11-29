@@ -74,6 +74,11 @@ def parse_offer_attribs_tags_names(root):
         negative = parse_bool(param.attrib.get("negative"))
         params.append({"name": name, "localizedname": localized_name, "type": elem_type, "compulsory": compulsory, "negative": negative})
 
+
+    all_props = attribs + tags + params
+    for i in range(len(all_props)):
+        all_props[i]["column_index"] = i
+
     return {"attribs": attribs, "tags": tags, "params": params}
 
 def get_type(element: dict):
@@ -91,12 +96,12 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
     if value is None:
         offer_list.append(None)
         if element_type["compulsory"]:
-            report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element required", "advice": ""})
+            report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "compulsory element required", "advice": ""})
         return
 
     if value == "" and element_type["compulsory"]:
         report.append(
-            {"index": i, "column": element_type["name"], "type": "technical", "reason": "compulsory element is empty", "advice": ""})
+            {"index": i, "column": element_type["column_index"], "type": "technical", "reason": "compulsory element is empty", "advice": ""})
         return
 
     type = get_type(element_type)
@@ -110,10 +115,10 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         if type == int or type == float:
             if not element_type["negative"] and value < 0:
                 value = None
-                report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
+                report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
     except (ValueError, TypeError):
         value = None
-        report.append({"index": i, "column": element_type["name"], "type": "technical", "reason": "invalid type", "advice": ""})
+        report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "invalid type", "advice": ""})
 
     offer_list.append(value)
 
@@ -122,7 +127,7 @@ def insert_element_by_type(i: int, offer_list: list, report: list, element_type:
     if element is None:
         offer_list.append(None)
         if element_type["compulsory"]:
-            report.append({"index": i, "column": element_type["name"], "type": "technical",
+            report.append({"index": i, "column": element_type["column_index"], "type": "technical",
                            "reason": "compulsory element required", "advice": ""})
         return
 
@@ -222,7 +227,8 @@ def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name:
 
 
 def test_db(request):
-    result = parse_file("feeds/san_yandex_feed.xml")
+    delete_report({"index": 1, "column": 12})
+    result = parse_file("feeds/yandex_feed.xml")
     print('saving xml')
     save_yandex_table(result["offers"])
     print('xml saved')
@@ -262,7 +268,7 @@ def check_price(offers_data: dict):
                 break
         if res_noun == "":
             noun = words[0]
-            report.append({"index": ind, "column": offers_cols[7], "type": "logical", "reason": "noun required in name", "advice": "Need noun"})
+            report.append({"index": ind, "column": 7, "type": "logical", "reason": "noun required in name", "advice": "Need noun"})
         else:
             noun = res_noun
         c_r = len(category)
@@ -294,13 +300,15 @@ def check_price(offers_data: dict):
         min_price = res_category[c[2]][2] - 4 * res_category[c[2]][3]
 
         if float(c[1]) > float(max_price) or float(c[1]) < float(min_price):
-            report.append({"index": c[3], "column": "price", "type": "logical", "reason": "price too high/low", "advice": "Make price lower or higher"})
+            report.append({"index": c[3], "column": 2, "type": "logical", "reason": "price too high/low", "advice": "Make price lower or higher"})
 
     saveCategoryMetric(res_category)
 
 
-def check_change(change: dict):
-    """change {"index": 0, "column_index": w, "value": "шииш"}"""
+def validate_change(change: dict):
+    """change {"index": 0, "column": w, "value": "шииш"}"""
+    delete_report({"index": change["index"], "column": change["column"]})
+
     template = lxml.etree.parse("feeds/template.xml").getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
     offer_attribs = parsed_template["attribs"]
@@ -321,12 +329,15 @@ def check_change(change: dict):
     negative = parse_bool(prop["negative"])
 
     if compulsory and (change["value"] is None or change["value"] == ""):
+        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "compulsory", "advice": ""})
         return {"valid": False, "reason": "compulsory"}
 
     if type == bool:
         result = parse_bool(change["value"])
         if result is not None:
             return {"valid": True}
+
+        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid bool", "advice": ""})
         return {"valid": False, "reason": "bool"}
 
     try:
@@ -334,11 +345,23 @@ def check_change(change: dict):
 
         if type == int or type == float:
             if not negative and value < 0:
+                add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "value must be non-negative", "advice": ""})
                 return {"valid": False, "reason": "non-negative"}
     except (ValueError, TypeError):
+        add_report({"index": change["index"], "column": change["column"], "type": "technical", "reason": "invalid type", "advice": ""})
         return {"valid": False, "reason": "type"}
 
     return {"valid": True}
+
+
+def delete_report(report: dict):
+    inst = Report.objects.filter(index=report["index"], column=report["column"])
+    inst.delete()
+
+
+def add_report(report: dict):
+    db_rep = Report(index=report["index"], column=report["column"], type=report["type"], reason=report["reason"], advice=report["advice"])
+    Report.save(db_rep)
 
 
 def saveCategoryMetric(arr):

@@ -1,4 +1,5 @@
 from django.db import models
+from viewflow.fields import CompositeKey
 
 
 class Category(models.Model):
@@ -13,8 +14,9 @@ class Category(models.Model):
 
 
 class Report(models.Model):
-   index = models.BigIntegerField(primary_key=True)
-   column = models.CharField(max_length=500)
+   id = CompositeKey(columns=['index', 'column'])
+   index = models.BigIntegerField(default=0)
+   column = models.BigIntegerField(default=0)
    type = models.CharField(max_length=500)
    reason = models.CharField(max_length=500)
    advice = models.CharField(max_length=200, default="")
