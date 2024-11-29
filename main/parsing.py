@@ -355,7 +355,7 @@ def validate_change(change: dict):
 
 
 def delete_report(report: dict):
-    inst = Report.objects.filter(index=report["index"], column=report["column"])
+    inst = Report.objects.filter(index=report["index"], column=report["column"])[0]
     inst.delete()
 
 
