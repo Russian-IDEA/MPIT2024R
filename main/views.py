@@ -4,7 +4,9 @@ import urllib.request
 
 import lxml
 from lxml import etree
+
 from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change, test_db
+from main.deparse import yandex_offer_to_xml
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -121,3 +123,8 @@ def get_info_db(template_file_name="feeds/template.xml"):
     for param in params:
         columns.append(param["localizedname"])
     return [columns, res_rest_elem]
+
+
+def convert(request):
+    yandex_offer_to_xml()
+    return HttpResponse(status=200)

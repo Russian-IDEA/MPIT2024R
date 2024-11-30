@@ -346,13 +346,23 @@ def validate_change(change: dict):
     for param in params:
         columns.append(param)
 
+    tech_report = validate_technical(change, columns)
+    if not tech_report["valid"]:
+        return tech_report
+
+    change_value(change["index"], change["column"], tech_report["value"], columns)
+    return {"valid": True}
+
+
+def validate_technical(change: dict, columns: list[dict]):
     prop = columns[change["column"]]
     type = get_type(prop)
     compulsory = parse_bool(prop["compulsory"])
     negative = parse_bool(prop["negative"])
 
     if compulsory and (change["value"] is None or change["value"] == ""):
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""}
+        report = {"index": change["index"], "column": change["column"], "type": "technical",
+                  "reason": "Элемент должен иметь значение", "advice": ""}
         # add_report(report)
         return {"valid": False, "report": report}
 
@@ -360,9 +370,10 @@ def validate_change(change: dict):
         result = parse_bool(change["value"])
         if result is not None:
             change_value(change["index"], change["column"], result, columns)
-            return {"valid": True}
+            return {"valid": True, "value": result}
 
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Неверный двоичный тип", "advice": ""}
+        report = {"index": change["index"], "column": change["column"], "type": "technical",
+                  "reason": "Неверный двоичный тип", "advice": ""}
         # add_report(report)
         return {"valid": False, "report": report}
 
@@ -371,16 +382,21 @@ def validate_change(change: dict):
 
         if type == int or type == float:
             if not negative and value < 0:
-                report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Значение должно быть неотрицательным", "advice": ""}
+                report = {"index": change["index"], "column": change["column"], "type": "technical",
+                          "reason": "Значение должно быть неотрицательным", "advice": ""}
                 # add_report(report)
                 return {"valid": False, "report": report}
     except (ValueError, TypeError):
-        report = {"index": change["index"], "column": change["column"], "type": "technical", "reason": "Неверный тип данных", "advice": ""}
+        report = {"index": change["index"], "column": change["column"], "type": "technical",
+                  "reason": "Неверный тип данных", "advice": ""}
         # add_report(report)
         return {"valid": False, "report": report}
 
-    change_value(change["index"], change["column"], value, columns)
-    return {"valid": True}
+    return {"valid": True, "value": value}
+
+
+def validate_logical(change: dict, columns: list[dict]):
+    morph = pymorphy3.MorphAnalyzer()
 
 
 def change_value(index: int, column: int, value, columns: list):
