@@ -5,6 +5,8 @@ from django.db import connection
 import lxml
 from lxml import etree
 
+import requests
+
 from main.parsing import parse_file, parse_and_save, parse_offer_attribs_tags_names, validate_change, test_db
 from main.deparse import yandex_offer_to_xml
 
@@ -147,7 +149,32 @@ def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/temp
 
 def convert(request):
     yandex_offer_to_xml()
-    FilePointer = open('feeds/output.xml', "r", encoding="utf-8")
-    response = HttpResponse(FilePointer, content_type='application/xml')
-    response['Content-Disposition'] = 'attachment; filename=output.xml'
-    return response
+
+    FilePointer = open('/Users/user/PycharmProjects/MPITR/feeds/output.xml', "r", encoding="utf-8")
+    token = open('token.csv', 'r', encoding='utf-8').readline()
+
+    headers = {
+        "Authorization": token
+    }
+    # get upload link
+    response = requests.request("GET",
+                                "https://cloud-api.yandex.net/v1/disk/resources/upload?path=pedant/output.xml&overwrite=true",
+                                headers=headers)
+
+    # upload
+    href = response.json()["href"]
+    response = requests.request("PUT",
+                                href,
+                                files={'file': FilePointer})
+
+    # publish
+    response = requests.request("PUT",
+                                "https://cloud-api.yandex.net/v1/disk/resources/publish?path=pedant/output.xml",
+                                headers=headers)
+
+    # get link
+    response = requests.request("GET",
+                                "https://cloud-api.yandex.net/v1/disk/resources?path=pedant/output.xml",
+                                headers=headers)
+    link = response.json()["public_url"]
+    return JsonResponse({"link": link})

@@ -304,3 +304,8 @@ span {
 .loading {
     margin: 100px 80px;
 }
+
+.download-container {
+    display: flex;
+    align-items: baseline;
+}

@@ -237,7 +237,7 @@ def parse_file(file_name: str = "feeds/yandex_feed.xml", template_file_name: str
     return {"columns": columns, "offers": offers_data["offers"], "report": offers_data["report"], "props": props}
 
 
-def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name: str = "feeds/template.xml"):
+def parse_and_save(file_name: str = "feeds/yandex_feed.xml", template_file_name: str = "/Users/user/PycharmProjects/MPITR/feeds/templates.xml"):
     result = parse_file(file_name, template_file_name)
     print('saving xml')
     save_yandex_table(result["offers"])
@@ -330,7 +330,7 @@ def check_price(offers_data: dict):
 
 def validate_change(change: dict):
     """change {"index": 0, "column": w, "value": "шииш"}"""
-    delete_report({"index": change["index"], "column": change["column"]})
+    rep = Report.objects.get(index=change["index"], column=change["column"])
 
     template = lxml.etree.parse("/Users/user/PycharmProjects/MPITR/feeds/templates.xml").getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
@@ -349,8 +349,16 @@ def validate_change(change: dict):
     tech_report = validate_technical(change, columns)
     if not tech_report["valid"]:
         return tech_report
+    change["value"] = tech_report["value"]
 
+    delete_report({"index": change["index"], "column": change["column"]})
     change_value(change["index"], change["column"], tech_report["value"], columns)
+
+    logical_report = validate_logical(change, columns, rep)
+    if not logical_report["valid"]:
+        add_report(logical_report["report"])
+        return logical_report
+
     return {"valid": True}
 
 
@@ -395,8 +403,54 @@ def validate_technical(change: dict, columns: list[dict]):
     return {"valid": True, "value": value}
 
 
-def validate_logical(change: dict, columns: list[dict]):
+def validate_logical(change: dict, columns: list[dict], old_rep):
     morph = pymorphy3.MorphAnalyzer()
+
+    name = change["value"]
+    if change["column"] != 6:
+        offer = YandexOffer.objects.get(index=change["index"])
+        name = offer.name
+
+    category = None
+    for word in name.split():
+        result = morph.parse(word)[0]
+        if 'NOUN' in result.tag:
+            category = result.normal_form
+            break
+
+    if change["column"] == 6 and category is None:
+            report = {"index": change["index"], "column": 6, "type": "logical",
+                      "reason": "В названии должно быть существительное", "advice": ""}
+            add_report(report)
+            return {"valid": False, "report": report}
+
+    if change["column"] == 2:
+        if category is None:
+            # keep previous report
+            old_rep.save()
+            report = {"index": change["index"], "column": 2, "type": "logical",
+                      "reason": "Сначала должно быть указано имя", "advice": ""}
+            return report
+
+        cat = Category.objects.get(name=category)
+        value = change["value"]
+
+        mat_exp = cat.mat_exp
+        sigm = cat.sigm
+
+        min_price = abs(mat_exp - 4 * sigm)
+        max_price = abs(mat_exp + 4 * sigm)
+
+        if value > max_price:
+            report = {"index": change["index"], "column": 2, "type": "logical", "reason": "Цена слишком высокая", "advice": mat_exp}
+            add_report(report)
+            return {"valid": False, "report": report}
+        if min_price > value:
+            report = {"index": change["index"], "column": 2, "type": "logical", "reason": "Цена слишком низкая", "advice": mat_exp}
+            add_report(report)
+            return {"valid": False, "report": report}
+
+    return {"valid": True}
 
 
 def change_value(index: int, column: int, value, columns: list):

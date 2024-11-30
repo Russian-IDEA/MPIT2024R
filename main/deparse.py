@@ -6,7 +6,7 @@ from .models import YandexOffer
 from .parsing import parse_offer_attribs_tags_names
 
 
-def yandex_offer_to_xml(template_file_name: str = "feeds/template.xml", output_file_name: str = "feeds/output.xml"):
+def yandex_offer_to_xml(template_file_name: str = "/Users/user/PycharmProjects/MPITR/feeds/templates.xml", output_file_name: str = "feeds/output.xml"):
     template = lxml.etree.parse(template_file_name).getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
 
