@@ -10,7 +10,7 @@ from main.deparse import yandex_offer_to_xml
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-
+from MPITR.tasks import parsing_file
 from .models import Report, YandexOffer, Current
 
 
@@ -19,6 +19,9 @@ def home(request):
     # table = parse_and_save(f'feeds/{filename}')
     # table = parse_and_save('/Users/user/PycharmProjects/MPITR/feeds/yandex_feed.xml')
     # report = get_info_report(table)
+    # parsing_file()
+    Current.objects.all().delete()
+    return redirect('/upload')
     if not Current.objects.exists():
         return redirect('/upload')
     report = get_info_db()
@@ -41,10 +44,11 @@ def upload(request):
         path = request.POST['path']
         files_number = len([name for name in os.listdir('feeds/')])
         filename = f'feeds/file{files_number + 1}.xml'
-        urllib.request.urlretrieve(path, filename)
-        Current.objects.create(current=filename)
-        test_db(filename)
-        return redirect('/')
+        Current.objects.create(current=filename, loaded=False)
+        # test_db(filename)
+        parsing_file.delay(path, filename)
+        return redirect('/upload')
+        # return redirect('/')
     return render(request, 'upload.html')
 
 

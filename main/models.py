@@ -46,3 +46,4 @@ class YandexOffer(models.Model):
 
 class Current(models.Model):
    current = models.CharField(max_length=100, primary_key=True)
+   loaded = models.BooleanField(default=False)
