@@ -332,7 +332,7 @@ def validate_change(change: dict):
     """change {"index": 0, "column": w, "value": "шииш"}"""
     delete_report({"index": change["index"], "column": change["column"]})
 
-    template = lxml.etree.parse("feeds/template.xml").getroot()
+    template = lxml.etree.parse("/Users/user/PycharmProjects/MPITR/feeds/templates.xml").getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
     offer_attribs = parsed_template["attribs"]
     tags = parsed_template["tags"]

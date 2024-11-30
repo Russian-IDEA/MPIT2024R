@@ -48,7 +48,7 @@ def upload(request):
     if request.method == 'POST':
         path = request.POST['path']
         files_number = len([name for name in os.listdir('feeds/')])
-        filename = f'feeds/file{files_number + 1}.xml'
+        filename = f'/Users/user/PycharmProjects/MPITR/feeds/file{files_number + 1}.xml'
         Current.objects.create(current=filename, loaded=False)
         # test_db(filename)
         with connection.cursor() as cursor:
