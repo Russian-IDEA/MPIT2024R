@@ -166,8 +166,24 @@
     let scrolledX = 0, scrolledY = 0;
 
     const App = () => {
+        const [isDone, setDone] = useState(false);
         useEffect(() => {
             window.scrollTo(scrolledX, scrolledY);
+            setInterval(() => {
+                if (!isDone) {
+                    fetch('http://localhost:8000/check-parse/', {
+                      method: 'GET',
+                      headers: {
+                        'X-CSRFToken': csrf_token.props.value
+                      }
+                    }).then(response => {
+                        response.text().then((result) => {
+                                setDone(result);
+                            }
+                        );
+                    });
+                }
+            }, 1000);
         });
         const [dialogState, setDialogState] = useState(DialogState.NO_DIALOG);
         const [correctMessage, setCorrectMessage] = useState('');
@@ -225,6 +241,7 @@
                 setDialogState(DialogState.NO_DIALOG)
             }
         };
+        if (isDone) 
         return (
             <div style={ positionDarkened } className={dialogState !== DialogState.NO_DIALOG ? "darkened" : ''}>
                 <header>
@@ -232,11 +249,6 @@
                     <div className="logo-text">PEDANT</div>
                     <div className="help">помощь</div>
                 </header>
-                {% if table|length == 0 %}
-                <div className="content">
-                    <h3 className="loading">Загрузка...</h3>
-                </div>
-                {% else %}
                 <div className="content" onClick={emptyClick}>
                     <Table onClick={onElemClick}/>
                 </div>
@@ -250,6 +262,19 @@
                         <button type="submit" className="btn green-button main-font">Далее</button>
                     </form>
                 </footer>
+            </div>
+        );
+        return (
+            <div>
+                <header>
+                    <div><img src="{% static 'logo.png' %}" alt="Logo"/></div>
+                    <div className="logo-text">PEDANT</div>
+                    <div className="help">помощь</div>
+                </header>
+                {% if table|length == 0 %}
+                <div className="content">
+                    <h3 className="loading">Загрузка...</h3>
+                </div>
                 {% endif %}
             </div>
         );
