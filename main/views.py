@@ -42,7 +42,7 @@ def upload(request):
         files_number = len([name for name in os.listdir('feeds/')])
         filename = f'feeds/file{files_number + 1}.xml'
         urllib.request.urlretrieve(path, filename)
-        Current.objects.create(current=filename)
+        Current.objects.create(current=filename, loaded=False)
         test_db(filename)
         return redirect('/')
     return render(request, 'upload.html')

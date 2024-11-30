@@ -330,7 +330,6 @@ def check_price(offers_data: dict):
 
 def validate_change(change: dict):
     """change {"index": 0, "column": w, "value": "шииш"}"""
-    delete_report({"index": change["index"], "column": change["column"]})
 
     template = lxml.etree.parse("feeds/template.xml").getroot()
     parsed_template = parse_offer_attribs_tags_names(template)
@@ -350,6 +349,7 @@ def validate_change(change: dict):
     if not tech_report["valid"]:
         return tech_report
 
+    delete_report({"index": change["index"], "column": change["column"]})
     change_value(change["index"], change["column"], tech_report["value"], columns)
     return {"valid": True}
 
