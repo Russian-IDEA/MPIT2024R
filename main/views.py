@@ -1,7 +1,7 @@
 import json
 import os
 import urllib.request
-
+from django.db import connection
 import lxml
 from lxml import etree
 
@@ -20,10 +20,11 @@ def home(request):
     # table = parse_and_save('/Users/user/PycharmProjects/MPITR/feeds/yandex_feed.xml')
     # report = get_info_report(table)
     # parsing_file()
-    Current.objects.all().delete()
-    return redirect('/upload')
+    # return redirect('/upload')
     if not Current.objects.exists():
         return redirect('/upload')
+    if not Current.objects.all()[0].loaded:
+        return redirect('/loading')
     report = get_info_db()
     table = report[1]
     download = True
@@ -39,6 +40,10 @@ def home(request):
                       'download': download
                   })
 
+def loading(request):
+    return render(request, 'loading.html')
+
+
 def upload(request):
     if request.method == 'POST':
         path = request.POST['path']
@@ -46,9 +51,15 @@ def upload(request):
         filename = f'feeds/file{files_number + 1}.xml'
         Current.objects.create(current=filename, loaded=False)
         # test_db(filename)
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM categorymetric")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM report")
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM main_yandexoffer")
         parsing_file.delay(path, filename)
-        return redirect('/upload')
-        # return redirect('/')
+        # return redirect('/upload')
+        return redirect('/')
     return render(request, 'upload.html')
 
 
@@ -85,7 +96,12 @@ def update_value_bd(request):
 #     return [table["columns"], res_rest_elem, res_rest_rep]
 
 
-def get_info_db(template_file_name="feeds/template.xml"):
+def check_end_parsing(request):
+    if (Current.objects.exists()):
+        return JsonResponse({"success": Current.objects.all()[0].loaded})
+    return JsonResponse({"success": False})
+
+def get_info_db(template_file_name="/Users/user/PycharmProjects/MPITR/feeds/templates.xml"):
     dict_const = ["index", "available", "price", "currencyId", "categoryId", "picture", "name",
                   "vendor", "description", "barcode", "article", "rating", "review_amount", "sale", "newby"]
     # dict_const = {"index": 0, "available": 1, "price": 2, "currencyId": 3, "categoryId": 4, "picture": 5, "name": 6, "vendor": 7,

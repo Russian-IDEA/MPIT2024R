@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from main.views import home, upload, update_value_bd, convert
+from main.views import home, upload, update_value_bd, convert, check_end_parsing, loading
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -28,6 +28,8 @@ urlpatterns = [
     path("upload/", upload),
     path("testDB/", test_db),
     path("update-value/", update_value_bd),
-    path("deparse/", convert)
+    path("deparse/", convert),
+    path("loading/", loading),
+    path("check-parse/", check_end_parsing)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
