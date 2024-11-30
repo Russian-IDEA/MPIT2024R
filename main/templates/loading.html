@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedant</title>
+</head>
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Jura:wght@300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'main.css' %}">
+<body>
+    <div id="root">
+        <div>
+                <header>
+                    <div><img src="{% static 'logo.png' %}" alt="Logo"/></div>
+                    <div class="logo-text">PEDANT</div>
+                    <div class="help">помощь</div>
+                </header>
+                <div class="content">
+                    <h3 class="loading">Загрузка...</h3>
+                </div>
+            </div>
+    </div>
+</body>
+<script type="text/babel">
+    const csrf_token = {% csrf_token %}</input>
+
+    let interval = setInterval(() => {
+        fetch('http://localhost:8000/check-parse/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': csrf_token.props.value
+            }
+        }).then(response => {
+            response.json().then((result) => {
+                if (result.success) {
+                    document.location.replace('/');
+                    clearInterval(interval);
+                }
+            });
+        });
+    }, 1000);
+</script>
+</html>
