@@ -105,8 +105,7 @@ def insert_value_by_type(i: int, offer_list: list, report: list, element_type: d
         return
 
     if value == "" and element_type["compulsory"]:
-        report.append(
-            {"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""})
+        report.append({"index": i, "column": element_type["column_index"], "type": "technical", "reason": "Элемент должен иметь значение", "advice": ""})
         return
 
     type = get_type(element_type)
@@ -193,7 +192,7 @@ def parse_xml(root, offer_attribs, tags, params) -> dict:
 
         offer_hash = hash_offer_without_id(offer_list)
         if offer_hash in hashs:
-            report.append({"index": id, "column": "hash", "type": "technical", "reason": "Одинаковые значения полей", "advice": ""})
+            report.append({"index": id, "column": 99, "type": "technical", "reason": "Одинаковые значения полей", "advice": ""})
         else:
             hashs.add(offer_hash)
         offer_list.append(offer_hash)
@@ -311,10 +310,7 @@ def check_price(offers_data: dict):
 
     res_category = []
     for i, c in enumerate(category):
-        try:
-            res_category.append([i, c, M_category[i][0], math.sqrt(D_category[i] - (float(M_category[i][0]) ** 2)), M_category[i][1]])
-        except ValueError:
-            print("Skipping. Value negative.")
+        res_category.append([i, c, M_category[i][0], math.sqrt(abs(D_category[i] - (float(M_category[i][0]) ** 2))), M_category[i][1]])
 
     for c in res_offers:
         max_price = res_category[c[2]][2] + 4 * res_category[c[2]][3]
