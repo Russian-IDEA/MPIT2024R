@@ -127,4 +127,7 @@ def get_info_db(template_file_name="feeds/template.xml"):
 
 def convert(request):
     yandex_offer_to_xml()
-    return HttpResponse(status=200)
+    FilePointer = open('feeds/output.xml', "r", encoding="utf-8")
+    response = HttpResponse(FilePointer, content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=output.xml'
+    return response

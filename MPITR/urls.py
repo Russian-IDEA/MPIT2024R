@@ -28,6 +28,6 @@ urlpatterns = [
     path("upload/", upload),
     path("testDB/", test_db),
     path("update-value/", update_value_bd),
-    path("deparse", convert)
+    path("deparse/", convert)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

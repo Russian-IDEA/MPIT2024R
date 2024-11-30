@@ -244,7 +244,7 @@
                 {dialogState === DialogState.CORRECT_DIALOG ? <DialogCorrect position={ positionDialog } setDialogState={setDialogState} index={index} category={category}/> : ''}
                 <footer>
                     {% if download %}
-                        <button className="btn green-button main-font">Скачать файл</button>
+                        <a href="deparse/"><button className="btn green-button main-font">Скачать файл</button></a>
                     {% endif %}
                     <form method="post">{csrf_token}
                         <button type="submit" className="btn green-button main-font">Далее</button>
